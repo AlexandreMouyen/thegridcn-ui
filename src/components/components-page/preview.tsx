@@ -40,6 +40,7 @@ function getRegistryName(componentId: string): string | null {
     "slider": "thegridcn-slider",
     "select": "thegridcn-select",
     "timeline": "thegridcn-timeline",
+    "sidebar-nav": "sidebar",
   };
 
   if (specialMappings[componentId]) {
