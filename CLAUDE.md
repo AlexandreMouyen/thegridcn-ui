@@ -32,6 +32,7 @@ Package manager: **pnpm**
 ### Theme System
 
 Six Greek god-inspired themes with oklch() color space:
+
 - **Ares** (red, default), **Tron** (cyan), **Clu** (orange), **Athena** (gold), **Aphrodite** (pink), **Poseidon** (blue)
 
 Themes use CSS variables via `data-theme` attribute on `<html>`. Theme state persists in localStorage under key `project-ares-theme`.
@@ -42,6 +43,7 @@ Themes use CSS variables via `data-theme` attribute on `<html>`. Theme state per
 - **Dynamic imports for 3D**: Three.js components must use `dynamic(() => import(...), { ssr: false })` to avoid SSR issues
 - **Path alias**: `@/*` maps to `./src/*`
 - **Component styling**: Uses Class Variance Authority (cva) patterns from shadcn/ui
+- **Mongoose models**: Interface defined explicitly in `src/types/<model>.ts`, schema+model in `src/models/<Model>.ts`. See skill `.agents/skills/typescript-mongoose/SKILL.md`
 
 ### Environment Variables
 
