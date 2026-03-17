@@ -35,9 +35,16 @@ export function HeaderAuthSection() {
     );
   }
 
-  // Not authenticated — nothing shown
+  // Not authenticated — show login link
   if (!session) {
-    return null;
+    return (
+      <a
+        href="/login"
+        className="flex items-center gap-1.5 rounded border border-primary/30 bg-primary/5 px-3 py-1.5 font-mono text-xs tracking-widest text-primary transition-colors hover:border-primary/60 hover:bg-primary/10"
+      >
+        LOGIN
+      </a>
+    );
   }
 
   const user = session.user;
