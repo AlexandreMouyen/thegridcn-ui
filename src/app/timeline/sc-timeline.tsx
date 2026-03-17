@@ -1,9 +1,16 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import dynamic from "next/dynamic";
 import { ChevronLeft, ChevronRight, ChevronDown, Calendar } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { selectableThemes, useTheme } from "@/components/theme";
+
+const GodAvatar3D = dynamic(
+  () => import("@/components/website/god-avatar").then((m) => m.GodAvatar3D),
+  { ssr: false },
+);
 import {
   eras,
   events,
@@ -434,6 +441,48 @@ function EraNavigator({ currentIndex, onGoTo }: EraNavigatorProps) {
 
 const MIN_HEIGHT = 420;
 
+// ─── Theme Selector ───────────────────────────────────────────────────────────
+function ThemeSelector() {
+  const { theme, setTheme } = useTheme();
+
+  return (
+    <div className="flex items-center justify-center gap-2 mt-5">
+      {selectableThemes.map((t) => {
+        const isActive = theme === t.id;
+        return (
+          <button
+            key={t.id}
+            onClick={() => setTheme(t.id)}
+            title={t.name}
+            aria-label={`Switch to ${t.name} theme`}
+            className={cn(
+              "group relative flex flex-col items-center rounded-sm transition-all duration-200 focus-visible:outline-none",
+              isActive ? "opacity-100" : "opacity-35 hover:opacity-65",
+            )}
+          >
+            <div
+              className={cn(
+                "relative overflow-hidden rounded-sm transition-all duration-200",
+                isActive
+                  ? "ring-1 ring-offset-1 ring-offset-background"
+                  : "group-hover:scale-110",
+              )}
+              style={{
+                backgroundColor: `${t.color}15`,
+                boxShadow: isActive
+                  ? `0 0 0 1px ${t.color}90, 0 0 8px ${t.color}60`
+                  : undefined,
+              }}
+            >
+              <GodAvatar3D themeId={t.id} color={t.color} size={32} />
+            </div>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
 // ─── Main Component ─────────────────────────────────────────────────────────────
 export function ScTimeline() {
   const isMobile = useIsMobile();
@@ -526,7 +575,7 @@ export function ScTimeline() {
 
       {/* ── Page header ───────────────────────────────────── */}
       <div className="relative z-10 px-4 pt-10 pb-8 text-center">
-        <div className="inline-flex items-center gap-2.5 mb-4 font-mono text-[9px] uppercase tracking-[0.2em] text-primary/55">
+        <div className="inline-flex items-center gap-2.5 mb-4 font-mono text-[11px] uppercase tracking-[0.2em] text-primary/55">
           <span className="h-px w-10 bg-gradient-to-r from-transparent to-primary/50" />
           UEE Historical Archive
           <span className="h-px w-10 bg-gradient-to-l from-transparent to-primary/50" />
@@ -538,6 +587,9 @@ export function ScTimeline() {
           {events.length} archive entries &middot; {eras.length} historical eras
           &middot; 2075 SE – 2954 SE
         </p>
+
+        {/* Theme dot-picker */}
+        <ThemeSelector />
 
         {/* Progress bar */}
         <div className="mt-6 max-w-xs mx-auto">
@@ -662,9 +714,12 @@ export function ScTimeline() {
       </div>
 
       {/* ── Era Navigator ─────────────────────────────────── */}
-      <div className="relative z-10 mt-4 pb-14">
+      <div className="relative z-10 mt-4">
         <EraNavigator currentIndex={currentIndex} onGoTo={goToSlide} />
       </div>
+
+      {/* bottom spacing */}
+      <div className="pb-14" />
     </div>
   );
 }
