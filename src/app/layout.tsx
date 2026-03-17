@@ -29,7 +29,7 @@ const rajdhani = Rajdhani({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://thegridcn.com"),
-  title: "The Gridcn | Tron-Inspired shadcn/ui Theme",
+  title: "SC Timeline | Tron-Inspired shadcn/ui Theme",
   description:
     "A Tron: Ares inspired theme and component library for shadcn/ui. 55+ components, 6 Greek god color themes, 3D effects, and HUD-style UI elements for futuristic React interfaces.",
   icons: {
@@ -39,15 +39,15 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     url: "https://thegridcn.com",
-    title: "The Gridcn | Tron-Inspired shadcn/ui Theme",
+    title: "SC Timeline | Tron-Inspired shadcn/ui Theme",
     description:
       "A Tron: Ares inspired theme and component library for shadcn/ui. 55+ components, 6 Greek god color themes, 3D effects, and HUD-style UI elements for futuristic React interfaces.",
     images: [{ url: "/og-image.png", width: 1200, height: 630 }],
-    siteName: "The Gridcn",
+    siteName: "SC Timeline",
   },
   twitter: {
     card: "summary_large_image",
-    title: "The Gridcn | Tron-Inspired shadcn/ui Theme",
+    title: "SC Timeline | Tron-Inspired shadcn/ui Theme",
     description:
       "A Tron: Ares inspired theme and component library for shadcn/ui. 55+ components, 6 Greek god color themes, 3D effects, and HUD-style UI elements.",
     images: ["/og-image.png"],
@@ -97,7 +97,7 @@ export default function RootLayout({
               "@graph": [
                 {
                   "@type": "WebSite",
-                  "name": "The Gridcn",
+                  "name": "SC Timeline",
                   "url": "https://thegridcn.com",
                   "description": "A Tron-inspired theme and component library for shadcn/ui with Greek god color schemes, 3D effects, and HUD-style UI elements.",
                 },
@@ -106,15 +106,15 @@ export default function RootLayout({
                   "mainEntity": [
                     {
                       "@type": "Question",
-                      "name": "What is The Gridcn?",
+                      "name": "What is SC Timeline?",
                       "acceptedAnswer": {
                         "@type": "Answer",
-                        "text": "The Gridcn is a Tron-inspired theme and component library built on top of shadcn/ui. It provides 50+ pre-styled components, 6 Greek god color themes, 3D effects powered by Three.js, and HUD-style UI elements — all designed to create immersive, futuristic interfaces with minimal setup."
+                        "text": "SC Timeline is a Tron-inspired theme and component library built on top of shadcn/ui. It provides 50+ pre-styled components, 6 Greek god color themes, 3D effects powered by Three.js, and HUD-style UI elements — all designed to create immersive, futuristic interfaces with minimal setup."
                       }
                     },
                     {
                       "@type": "Question",
-                      "name": "How do I install The Gridcn components?",
+                      "name": "How do I install SC Timeline components?",
                       "acceptedAnswer": {
                         "@type": "Answer",
                         "text": "You can install components using the shadcn CLI. Run 'pnpm dlx shadcn@latest add @thegridcn/[component]' to add individual components, or use 'pnpm dlx shadcn@latest list @thegridcn' to browse all available components. Works with npm, yarn, and bun too."
@@ -125,7 +125,7 @@ export default function RootLayout({
                       "name": "Do I need shadcn/ui already set up?",
                       "acceptedAnswer": {
                         "@type": "Answer",
-                        "text": "Yes. The Gridcn extends shadcn/ui, so you need a project with shadcn/ui initialized. Run 'pnpm dlx shadcn@latest init' first if you don't have it. The Gridcn components integrate seamlessly with your existing shadcn/ui setup and Tailwind CSS configuration."
+                        "text": "Yes. SC Timeline extends shadcn/ui, so you need a project with shadcn/ui initialized. Run 'pnpm dlx shadcn@latest init' first if you don't have it. SC Timeline components integrate seamlessly with your existing shadcn/ui setup and Tailwind CSS configuration."
                       }
                     },
                     {
@@ -157,15 +157,15 @@ export default function RootLayout({
                       "name": "Does it work with frameworks other than Next.js?",
                       "acceptedAnswer": {
                         "@type": "Answer",
-                        "text": "The Gridcn components work with any React framework that supports shadcn/ui — including Next.js, Vite, Remix, and Astro. Since they're installed directly into your project as source code (not a dependency), you have full control and can adapt them to your stack."
+                        "text": "SC Timeline components work with any React framework that supports shadcn/ui — including Next.js, Vite, Remix, and Astro. Since they're installed directly into your project as source code (not a dependency), you have full control and can adapt them to your stack."
                       }
                     },
                     {
                       "@type": "Question",
-                      "name": "Is The Gridcn free to use?",
+                      "name": "Is SC Timeline free to use?",
                       "acceptedAnswer": {
                         "@type": "Answer",
-                        "text": "Yes, The Gridcn is completely free and open source. You can use it in personal and commercial projects. Components are added to your codebase as source files, giving you full ownership and the freedom to modify anything."
+                        "text": "Yes, SC Timeline is completely free and open source. You can use it in personal and commercial projects. Components are added to your codebase as source files, giving you full ownership and the freedom to modify anything."
                       }
                     }
                   ]

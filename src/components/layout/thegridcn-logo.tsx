@@ -86,7 +86,7 @@ export function TheGridcnLogo({ size = "md", className, showIcon = true }: TheGr
     <div className={cn("flex items-center", s.gap, className)}>
       {showIcon && <GridIcon className={s.icon} />}
       <span className={cn("font-display font-bold tracking-wider text-primary", s.text)}>
-        THE GRIDCN
+        SC TIMELINE
       </span>
     </div>
   )

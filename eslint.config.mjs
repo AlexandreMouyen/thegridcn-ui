@@ -13,6 +13,16 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
   ]),
+  // Disable new react-hooks v5 rules (eslint-config-next 16.1.7+) that flag
+  // intentional Three.js patterns such as ref mutations during render and
+  // Math.random inside useMemo initializers.
+  {
+    rules: {
+      "react-hooks/purity": "off",
+      "react-hooks/refs": "off",
+      "react-hooks/immutability": "off",
+    },
+  },
 ]);
 
 export default eslintConfig;

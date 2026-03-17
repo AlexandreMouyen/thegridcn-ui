@@ -1,11 +1,11 @@
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "Components | The Gridcn",
+  title: "Components | SC Timeline",
   description:
     "Browse 55+ Tron-inspired UI components for shadcn/ui. Data cards, HUD elements, 3D grids, radar displays, and more — all with Greek god color themes and glow effects.",
   openGraph: {
-    title: "Components | The Gridcn",
+    title: "Components | SC Timeline",
     description:
       "Browse 55+ Tron-inspired UI components for shadcn/ui. Data cards, HUD elements, 3D grids, radar displays, and more.",
     url: "https://thegridcn.com/components",
@@ -13,7 +13,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Components | The Gridcn",
+    title: "Components | SC Timeline",
     description:
       "Browse 55+ Tron-inspired UI components for shadcn/ui. Data cards, HUD elements, 3D grids, radar displays, and more.",
     images: ["/og-image.png"],

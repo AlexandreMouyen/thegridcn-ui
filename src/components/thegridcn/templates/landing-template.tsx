@@ -134,7 +134,7 @@ const LANDING_PRICING_ENTERPRISE_FEATURES = [
 const LANDING_TESTIMONIALS = [
   {
     quote:
-      "The Gridcn transformed our product dashboard. The Tron aesthetic gives our platform a futuristic edge that users love.",
+      "SC Timeline transformed our product dashboard. The Tron aesthetic gives our platform a futuristic edge that users love.",
     author: "Aria Chen",
     role: "CTO at Nexus Corp",
     rating: 5,
@@ -156,7 +156,7 @@ const LANDING_TESTIMONIALS = [
 ]
 
 const LANDING_COMPARISON_COLUMNS = [
-  { name: "The Gridcn", highlighted: true },
+  { name: "SC Timeline", highlighted: true },
   { name: "Standard UI Kit" },
   { name: "Custom Build" },
 ]
@@ -176,9 +176,9 @@ const LANDING_COMPARISON_FEATURES = [
 
 const LANDING_FAQ_ITEMS = [
   {
-    question: "What is The Gridcn?",
+    question: "What is SC Timeline?",
     answer:
-      "The Gridcn is a Tron: Ares inspired UI component library built on top of shadcn/ui. It features Greek god-themed color schemes, 3D effects, and movie-accurate Tron aesthetics — all built with Next.js, React, TypeScript, and Tailwind CSS.",
+      "SC Timeline is a Tron: Ares inspired UI component library built on top of shadcn/ui. It features Greek god-themed color schemes, 3D effects, and movie-accurate Tron aesthetics — all built with Next.js, React, TypeScript, and Tailwind CSS.",
   },
   {
     question: "Is it free to use?",
@@ -193,7 +193,7 @@ const LANDING_FAQ_ITEMS = [
   {
     question: "Does it work with existing shadcn/ui components?",
     answer:
-      "Absolutely. The Gridcn extends shadcn/ui — all base primitives remain fully compatible. You can mix and match standard and Tron-themed components in the same project.",
+      "Absolutely. SC Timeline extends shadcn/ui — all base primitives remain fully compatible. You can mix and match standard and Tron-themed components in the same project.",
   },
   {
     question: "How does the theme system work?",
@@ -285,7 +285,7 @@ export function LandingTemplate() {
               <Zap className="h-4 w-4 text-primary" />
             </div>
             <span className="font-display text-sm font-bold uppercase tracking-wider text-foreground">
-              The Gridcn
+              SC Timeline
             </span>
           </a>
 
@@ -568,7 +568,7 @@ export function LandingTemplate() {
         <div className="mx-auto max-w-4xl">
           <CTABanner
             title="Ready to Enter the Grid?"
-            description="Join thousands of developers building futuristic interfaces with The Gridcn. Free, open-source, and endlessly customizable."
+            description="Join thousands of developers building futuristic interfaces with SC Timeline. Free, open-source, and endlessly customizable."
             primaryAction={{ label: "Get Started Free" }}
             secondaryAction={{ label: "View on GitHub" }}
             variant="highlight"
@@ -616,13 +616,13 @@ export function LandingTemplate() {
               <Zap className="h-3.5 w-3.5 text-primary" />
             </div>
             <span className="font-display text-xs font-bold uppercase tracking-wider text-foreground/80">
-              The Gridcn
+              SC Timeline
             </span>
           </div>
         }
         columns={LANDING_FOOTER_COLUMNS}
         socials={LANDING_FOOTER_SOCIALS}
-        copyright={`\u00A9 ${new Date().getFullYear()} The Gridcn. All rights reserved.`}
+        copyright={`\u00A9 ${new Date().getFullYear()} SC Timeline. All rights reserved.`}
       />
     </div>
   )

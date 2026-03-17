@@ -257,7 +257,7 @@ export default function ComponentsPage() {
           className="crt-scanlines pointer-events-none absolute inset-0 opacity-[0.03]"
         />
         <UplinkHeader
-          leftText="SYSTEM: THE GRIDCN v1.0.0"
+          leftText="SYSTEM: SC TIMELINE v1.0.0"
           rightText="UPTIME: 99.9% - END OF LINE"
         />
 

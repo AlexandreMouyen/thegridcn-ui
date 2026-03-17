@@ -37,7 +37,7 @@ export function LoginTemplate() {
 
           {/* Brand */}
           <h1 className="font-[family-name:var(--font-orbitron)] text-3xl font-bold uppercase tracking-[0.2em] text-foreground">
-            The Gridcn
+            SC Timeline
           </h1>
           <div className="mx-auto mt-4 flex items-center gap-2">
             <div className="h-px w-8 bg-primary/60" />
@@ -108,7 +108,7 @@ export function LoginTemplate() {
               <Zap className="h-7 w-7 text-primary" />
             </div>
             <span className="font-[family-name:var(--font-orbitron)] text-lg font-bold uppercase tracking-[0.15em] text-foreground">
-              The Gridcn
+              SC Timeline
             </span>
           </div>
 

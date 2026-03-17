@@ -29,25 +29,47 @@ import { TronHeader, TheGridcnLogo } from "@/components/layout";
 // Dynamic import for Three.js components (client-side only)
 const Grid3D = dynamic(
   () => import("@/components/thegridcn/grid").then((mod) => mod.Grid3D),
-  { ssr: false }
+  { ssr: false },
 );
 
 // Available components for terminal display
 const availableComponents = [
   // 3D Components
-  "grid-3d", "tunnel", "god-avatar",
+  "grid-3d",
+  "tunnel",
+  "god-avatar",
   // Data Display
-  "data-card", "status-bar", "video-player", "floating-panel",
+  "data-card",
+  "status-bar",
+  "video-player",
+  "floating-panel",
   // Timers
-  "timer", "countdown", "derez-timer",
+  "timer",
+  "countdown",
+  "derez-timer",
   // HUD Elements
-  "reticle", "hud-frame", "stat", "speed-indicator", "regen-indicator", "radar", "hud-corner-frame",
+  "reticle",
+  "hud-frame",
+  "stat",
+  "speed-indicator",
+  "regen-indicator",
+  "radar",
+  "hud-corner-frame",
   // Feedback & Alerts
-  "alert-banner", "anomaly-banner", "arrival-panel",
+  "alert-banner",
+  "anomaly-banner",
+  "arrival-panel",
   // Navigation & Location
-  "location-display", "uplink-header", "beam-marker", "timeline-bar", "video-progress",
+  "location-display",
+  "uplink-header",
+  "beam-marker",
+  "timeline-bar",
+  "video-progress",
   // Effects
-  "circuit-background", "glow-container", "crt-effect", "grid-scan-overlay",
+  "circuit-background",
+  "glow-container",
+  "crt-effect",
+  "grid-scan-overlay",
 ];
 
 // Package manager commands
@@ -91,7 +113,8 @@ const STATUS_STRIP_FAQ = [
 // Terminal install component
 function TerminalInstall() {
   const router = useRouter();
-  const [selectedPm, setSelectedPm] = React.useState<(typeof packageManagers)[number]["id"]>("pnpm");
+  const [selectedPm, setSelectedPm] =
+    React.useState<(typeof packageManagers)[number]["id"]>("pnpm");
   const [isOpen, setIsOpen] = React.useState(false);
   const [copied, setCopied] = React.useState(false);
   const [selectedIndex, setSelectedIndex] = React.useState(0);
@@ -104,7 +127,10 @@ function TerminalInstall() {
     if (!isOpen) return;
 
     const handleClickOutside = (e: MouseEvent) => {
-      if (pmSelectorRef.current && !pmSelectorRef.current.contains(e.target as Node)) {
+      if (
+        pmSelectorRef.current &&
+        !pmSelectorRef.current.contains(e.target as Node)
+      ) {
         setIsOpen(false);
       }
     };
@@ -131,32 +157,35 @@ function TerminalInstall() {
   }, [selectedIndex, router]);
 
   // Handle keyboard navigation
-  const handleKeyDown = React.useCallback((e: KeyboardEvent) => {
-    if (e.key === "ArrowDown" || e.key === "j") {
-      e.preventDefault();
-      setSelectedIndex((prev) => {
-        const next = Math.min(prev + 1, availableComponents.length - 1);
-        // Adjust scroll offset if needed
-        if (next >= scrollOffset + VISIBLE_ITEMS) {
-          setScrollOffset(next - VISIBLE_ITEMS + 1);
-        }
-        return next;
-      });
-    } else if (e.key === "ArrowUp" || e.key === "k") {
-      e.preventDefault();
-      setSelectedIndex((prev) => {
-        const next = Math.max(prev - 1, 0);
-        // Adjust scroll offset if needed
-        if (next < scrollOffset) {
-          setScrollOffset(next);
-        }
-        return next;
-      });
-    } else if (e.key === "Enter") {
-      e.preventDefault();
-      navigateToComponent();
-    }
-  }, [scrollOffset, navigateToComponent]);
+  const handleKeyDown = React.useCallback(
+    (e: KeyboardEvent) => {
+      if (e.key === "ArrowDown" || e.key === "j") {
+        e.preventDefault();
+        setSelectedIndex((prev) => {
+          const next = Math.min(prev + 1, availableComponents.length - 1);
+          // Adjust scroll offset if needed
+          if (next >= scrollOffset + VISIBLE_ITEMS) {
+            setScrollOffset(next - VISIBLE_ITEMS + 1);
+          }
+          return next;
+        });
+      } else if (e.key === "ArrowUp" || e.key === "k") {
+        e.preventDefault();
+        setSelectedIndex((prev) => {
+          const next = Math.max(prev - 1, 0);
+          // Adjust scroll offset if needed
+          if (next < scrollOffset) {
+            setScrollOffset(next);
+          }
+          return next;
+        });
+      } else if (e.key === "Enter") {
+        e.preventDefault();
+        navigateToComponent();
+      }
+    },
+    [scrollOffset, navigateToComponent],
+  );
 
   // Handle wheel scroll on list - prevent page scroll completely
   const handleWheel = React.useCallback((e: WheelEvent) => {
@@ -164,7 +193,10 @@ function TerminalInstall() {
     e.stopPropagation();
     const direction = e.deltaY > 0 ? 1 : -1;
     setScrollOffset((prev) => {
-      const next = Math.max(0, Math.min(prev + direction, availableComponents.length - VISIBLE_ITEMS));
+      const next = Math.max(
+        0,
+        Math.min(prev + direction, availableComponents.length - VISIBLE_ITEMS),
+      );
       return next;
     });
   }, []);
@@ -174,17 +206,27 @@ function TerminalInstall() {
     if (listElement) {
       // Use passive: false to allow preventDefault
       listElement.addEventListener("wheel", handleWheel, { passive: false });
-      listElement.addEventListener("keydown", handleKeyDown as unknown as EventListener);
+      listElement.addEventListener(
+        "keydown",
+        handleKeyDown as unknown as EventListener,
+      );
       return () => {
         listElement.removeEventListener("wheel", handleWheel);
-        listElement.removeEventListener("keydown", handleKeyDown as unknown as EventListener);
+        listElement.removeEventListener(
+          "keydown",
+          handleKeyDown as unknown as EventListener,
+        );
       };
     }
   }, [handleKeyDown, handleWheel]);
 
-  const visibleComponents = availableComponents.slice(scrollOffset, scrollOffset + VISIBLE_ITEMS);
+  const visibleComponents = availableComponents.slice(
+    scrollOffset,
+    scrollOffset + VISIBLE_ITEMS,
+  );
   const hasMoreAbove = scrollOffset > 0;
-  const hasMoreBelow = scrollOffset + VISIBLE_ITEMS < availableComponents.length;
+  const hasMoreBelow =
+    scrollOffset + VISIBLE_ITEMS < availableComponents.length;
 
   return (
     <div className="relative w-full max-w-2xl">
@@ -241,7 +283,12 @@ function TerminalInstall() {
                   viewBox="0 0 24 24"
                   stroke="currentColor"
                 >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 9l-7 7-7-7"
+                  />
                 </svg>
               </button>
 
@@ -255,7 +302,9 @@ function TerminalInstall() {
                         setIsOpen(false);
                       }}
                       className={`block w-full px-3 py-1.5 text-left text-xs transition-colors hover:bg-primary/10 ${
-                        selectedPm === pm.id ? "bg-primary/10 text-primary" : "text-foreground"
+                        selectedPm === pm.id
+                          ? "bg-primary/10 text-primary"
+                          : "text-foreground"
                       }`}
                     >
                       {pm.command}
@@ -266,7 +315,8 @@ function TerminalInstall() {
             </div>
 
             <code className="text-foreground">
-              shadcn@latest list <span className="text-primary">@thegridcn</span>
+              shadcn@latest list{" "}
+              <span className="text-primary">@thegridcn</span>
             </code>
 
             {/* Copy button */}
@@ -276,12 +326,32 @@ function TerminalInstall() {
               title="Copy command"
             >
               {copied ? (
-                <svg className="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                <svg
+                  className="h-4 w-4 text-primary"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M5 13l4 4L19 7"
+                  />
                 </svg>
               ) : (
-                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                <svg
+                  className="h-4 w-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                  />
                 </svg>
               )}
             </button>
@@ -291,7 +361,8 @@ function TerminalInstall() {
           <div className="border-l-2 border-primary/20 pl-3">
             <div className="mb-2 flex items-center justify-between">
               <span className="font-mono text-[10px] uppercase tracking-wider text-primary">
-                ◆ Select component to install <span className="text-foreground/60">(scroll to navigate)</span>
+                ◆ Select component to install{" "}
+                <span className="text-foreground/60">(scroll to navigate)</span>
               </span>
               <span className="font-mono text-[10px] text-foreground/60">
                 {selectedIndex + 1}/{availableComponents.length}
@@ -307,7 +378,9 @@ function TerminalInstall() {
               onMouseLeave={() => listRef.current?.blur()}
             >
               {/* Scroll up indicator - always reserve space */}
-              <div className={`flex items-center gap-2 py-1 font-mono text-[11px] ${hasMoreAbove ? "text-foreground/40" : "invisible"}`}>
+              <div
+                className={`flex items-center gap-2 py-1 font-mono text-[11px] ${hasMoreAbove ? "text-foreground/40" : "invisible"}`}
+              >
                 <span>↑</span>
                 <span>{scrollOffset} more</span>
               </div>
@@ -329,10 +402,18 @@ function TerminalInstall() {
                           : "text-foreground/70 hover:text-foreground"
                       }`}
                     >
-                      <span className={isSelected ? "text-primary" : "text-foreground/40"}>
+                      <span
+                        className={
+                          isSelected ? "text-primary" : "text-foreground/40"
+                        }
+                      >
                         {isSelected ? "◆" : "◇"}
                       </span>
-                      <span className={isSelected ? "underline underline-offset-2" : ""}>
+                      <span
+                        className={
+                          isSelected ? "underline underline-offset-2" : ""
+                        }
+                      >
                         {comp}
                       </span>
                       {isSelected && (
@@ -346,9 +427,14 @@ function TerminalInstall() {
               </div>
 
               {/* Scroll down indicator - always reserve space */}
-              <div className={`flex items-center gap-2 py-1 font-mono text-[11px] ${hasMoreBelow ? "text-foreground/40" : "invisible"}`}>
+              <div
+                className={`flex items-center gap-2 py-1 font-mono text-[11px] ${hasMoreBelow ? "text-foreground/40" : "invisible"}`}
+              >
                 <span>↓</span>
-                <span>{availableComponents.length - scrollOffset - VISIBLE_ITEMS} more</span>
+                <span>
+                  {availableComponents.length - scrollOffset - VISIBLE_ITEMS}{" "}
+                  more
+                </span>
               </div>
             </div>
           </div>
@@ -356,7 +442,9 @@ function TerminalInstall() {
           {/* Status line */}
           <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-wider">
             <span className="inline-block h-1.5 w-1.5 animate-pulse bg-primary" />
-            <span className="text-primary">{availableComponents.length} COMPONENTS READY</span>
+            <span className="text-primary">
+              {availableComponents.length} COMPONENTS READY
+            </span>
             <span className="text-foreground/60">+ ALL NATIVE SHADCN/UI</span>
           </div>
         </div>
@@ -400,7 +488,7 @@ function FeatureCard({
   );
 }
 
-export default function Home() {
+export default function HomePage() {
   const { theme } = useTheme();
   const currentTheme = themeById.get(theme);
 
@@ -423,7 +511,7 @@ export default function Home() {
       {/* Main content */}
       <main className="relative z-10">
         {/* Hero section */}
-        <section className="relative min-h-[100vh] overflow-hidden">
+        <section className="relative flex min-h-[calc(100vh-65px)] flex-col overflow-hidden">
           {/* Grid map overlay */}
           <GridMap />
           <GridScanOverlay />
@@ -443,7 +531,7 @@ export default function Home() {
           </div>
 
           {/* Main hero content */}
-          <div className="container relative mx-auto px-4 py-12 md:py-20">
+          <div className="container relative mx-auto flex flex-1 flex-col justify-center px-4 py-12 md:py-20">
             {/* Central content with HUD frame */}
             <div className="relative mx-auto max-w-4xl">
               {/* Outer scanning frame */}
@@ -469,10 +557,10 @@ export default function Home() {
                   CLASSIFIED PROJECT
                 </div>
                 <h1 className="font-display text-6xl font-black tracking-[0.15em] text-primary md:text-8xl lg:text-[9rem] [text-shadow:0_0_80px_oklch(from_var(--primary)_l_c_h/0.5),0_0_160px_oklch(from_var(--primary)_l_c_h/0.3)]">
-                  THE GRIDCN
+                  SC TIMELINE
                 </h1>
                 <div className="mt-4 font-mono text-sm tracking-[0.4em] text-primary md:text-base">
-                  TRON THEME SYSTEM FOR SHADCN/UI
+                  LORE EVENTS FOR THE STAR CITIZEN GAME
                 </div>
               </div>
             </div>
@@ -487,28 +575,12 @@ export default function Home() {
             {/* CTA Buttons */}
             <div className="mb-10 flex flex-wrap justify-center gap-4">
               <Link
-                href="/components"
+                href="/timeline"
                 className="group relative overflow-hidden rounded border-2 border-primary bg-primary/20 px-10 py-4 font-mono text-sm font-bold tracking-wider text-primary transition-all hover:bg-primary hover:text-primary-foreground hover:shadow-[0_0_40px_var(--primary)]"
               >
-                <span className="relative z-10">ENTER THE GRID</span>
+                <span className="relative z-10">LEARN THE HISTORY</span>
                 <div className="absolute inset-0 -z-10 translate-y-full bg-primary transition-transform group-hover:translate-y-0" />
               </Link>
-              <Link
-                href="https://github.com/educlopez/thegridcn-ui"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group relative overflow-hidden rounded border border-primary/30 bg-transparent px-10 py-4 font-mono text-sm font-bold tracking-wider text-foreground/80 transition-all hover:border-primary/50 hover:text-primary hover:shadow-[0_0_20px_var(--primary)]"
-              >
-                <span className="relative z-10">VIEW ON GITHUB</span>
-              </Link>
-            </div>
-
-            {/* Install command */}
-            <div className="mx-auto w-full max-w-2xl">
-              <div className="mb-3 text-center font-mono text-[10px] tracking-widest text-foreground/80">
-                [ QUICK INSTALL ]
-              </div>
-              <TerminalInstall />
             </div>
 
             {/* Side panels - Dossier card style (left) */}
@@ -540,10 +612,7 @@ export default function Home() {
                 <div className="mb-2 font-mono text-[9px] tracking-widest text-foreground/80">
                   PROXIMITY SCAN
                 </div>
-                <Radar
-                  size={140}
-                  targets={RADAR_TARGETS}
-                />
+                <Radar size={140} targets={RADAR_TARGETS} />
               </div>
             </div>
           </div>
@@ -576,10 +645,7 @@ export default function Home() {
           <GridScanOverlay />
 
           {/* Status bar */}
-          <StatusStrip
-            variant="default"
-            items={STATUS_STRIP_FEATURES}
-          />
+          <StatusStrip variant="default" items={STATUS_STRIP_FEATURES} />
 
           <div className="container relative mx-auto px-4 pt-8">
             {/* Section header */}
@@ -717,10 +783,7 @@ export default function Home() {
         {/* Tech Stack */}
         <section className="relative border-t border-primary/20 py-24">
           {/* Status bar */}
-          <StatusStrip
-            variant="default"
-            items={STATUS_STRIP_ARCHITECTURE}
-          />
+          <StatusStrip variant="default" items={STATUS_STRIP_ARCHITECTURE} />
 
           <div className="container mx-auto px-4 pt-8">
             <div className="mb-12 text-center">
@@ -768,10 +831,7 @@ export default function Home() {
         <section className="relative border-t border-primary/20 py-24">
           <div className="absolute inset-0 bg-gradient-to-b from-background via-card/20 to-background" />
 
-          <StatusStrip
-            variant="default"
-            items={STATUS_STRIP_FAQ}
-          />
+          <StatusStrip variant="default" items={STATUS_STRIP_FAQ} />
 
           <div className="container relative mx-auto px-4 pt-8">
             <div className="mb-16 text-center">
@@ -782,7 +842,7 @@ export default function Home() {
                 FREQUENTLY ASKED
               </h2>
               <p className="mx-auto mt-4 max-w-xl text-foreground/80">
-                Common questions about The Gridcn component library
+                Common questions about SC Timeline component library
               </p>
             </div>
 
@@ -794,9 +854,7 @@ export default function Home() {
               <div className="absolute -bottom-px -right-px h-4 w-4 border-b-2 border-r-2 border-primary" />
 
               {/* Scanline effect */}
-              <div
-                className="crt-scanlines pointer-events-none absolute inset-0 opacity-[0.03]"
-              />
+              <div className="crt-scanlines pointer-events-none absolute inset-0 opacity-[0.03]" />
 
               {/* Header bar */}
               <div className="relative border-b border-primary/30 bg-primary/5 px-4 py-2">
@@ -823,19 +881,33 @@ export default function Home() {
                 <Accordion type="single" collapsible className="w-full">
                   <AccordionItem value="what-is" className="border-primary/20">
                     <AccordionTrigger className="font-display text-sm tracking-wider text-foreground hover:text-primary hover:no-underline">
-                      What is The Gridcn?
+                      What is SC Timeline?
                     </AccordionTrigger>
                     <AccordionContent className="text-foreground/80">
-                      The Gridcn is a Tron-inspired theme and component library built on top of shadcn/ui. It provides 50+ pre-styled components, 6 Greek god color themes, 3D effects powered by Three.js, and HUD-style UI elements — all designed to create immersive, futuristic interfaces with minimal setup.
+                      SC Timeline is a Tron-inspired theme and component library
+                      built on top of shadcn/ui. It provides 50+ pre-styled
+                      components, 6 Greek god color themes, 3D effects powered
+                      by Three.js, and HUD-style UI elements — all designed to
+                      create immersive, futuristic interfaces with minimal
+                      setup.
                     </AccordionContent>
                   </AccordionItem>
 
                   <AccordionItem value="install" className="border-primary/20">
                     <AccordionTrigger className="font-display text-sm tracking-wider text-foreground hover:text-primary hover:no-underline">
-                      How do I install The Gridcn components?
+                      How do I install SC Timeline components?
                     </AccordionTrigger>
                     <AccordionContent className="text-foreground/80">
-                      You can install components using the shadcn CLI. Run <code className="rounded bg-primary/10 px-1.5 py-0.5 font-mono text-xs text-primary">pnpm dlx shadcn@latest add @thegridcn/[component]</code> to add individual components, or use <code className="rounded bg-primary/10 px-1.5 py-0.5 font-mono text-xs text-primary">pnpm dlx shadcn@latest list @thegridcn</code> to browse all available components. Works with npm, yarn, and bun too.
+                      You can install components using the shadcn CLI. Run{" "}
+                      <code className="rounded bg-primary/10 px-1.5 py-0.5 font-mono text-xs text-primary">
+                        pnpm dlx shadcn@latest add @thegridcn/[component]
+                      </code>{" "}
+                      to add individual components, or use{" "}
+                      <code className="rounded bg-primary/10 px-1.5 py-0.5 font-mono text-xs text-primary">
+                        pnpm dlx shadcn@latest list @thegridcn
+                      </code>{" "}
+                      to browse all available components. Works with npm, yarn,
+                      and bun too.
                     </AccordionContent>
                   </AccordionItem>
 
@@ -844,7 +916,15 @@ export default function Home() {
                       Do I need shadcn/ui already set up?
                     </AccordionTrigger>
                     <AccordionContent className="text-foreground/80">
-                      Yes. The Gridcn extends shadcn/ui, so you need a project with shadcn/ui initialized. If you don&apos;t have it yet, run <code className="rounded bg-primary/10 px-1.5 py-0.5 font-mono text-xs text-primary">pnpm dlx shadcn@latest init</code> first. The Gridcn components will then integrate seamlessly with your existing shadcn/ui setup and Tailwind CSS configuration.
+                      Yes. SC Timeline extends shadcn/ui, so you need a project
+                      with shadcn/ui initialized. If you don&apos;t have it yet,
+                      run{" "}
+                      <code className="rounded bg-primary/10 px-1.5 py-0.5 font-mono text-xs text-primary">
+                        pnpm dlx shadcn@latest init
+                      </code>{" "}
+                      first. SC Timeline components will then integrate
+                      seamlessly with your existing shadcn/ui setup and Tailwind
+                      CSS configuration.
                     </AccordionContent>
                   </AccordionItem>
 
@@ -853,16 +933,37 @@ export default function Home() {
                       What themes are available?
                     </AccordionTrigger>
                     <AccordionContent className="text-foreground/80">
-                      Six Greek god-inspired themes: <strong className="text-foreground">Ares</strong> (red), <strong className="text-foreground">Tron</strong> (cyan), <strong className="text-foreground">Clu</strong> (orange), <strong className="text-foreground">Athena</strong> (gold), <strong className="text-foreground">Aphrodite</strong> (pink), and <strong className="text-foreground">Poseidon</strong> (blue). Each theme uses oklch() color space for precise color control and includes matching glow effects, borders, and background tones.
+                      Six Greek god-inspired themes:{" "}
+                      <strong className="text-foreground">Ares</strong> (red),{" "}
+                      <strong className="text-foreground">Tron</strong> (cyan),{" "}
+                      <strong className="text-foreground">Clu</strong> (orange),{" "}
+                      <strong className="text-foreground">Athena</strong>{" "}
+                      (gold),{" "}
+                      <strong className="text-foreground">Aphrodite</strong>{" "}
+                      (pink), and{" "}
+                      <strong className="text-foreground">Poseidon</strong>{" "}
+                      (blue). Each theme uses oklch() color space for precise
+                      color control and includes matching glow effects, borders,
+                      and background tones.
                     </AccordionContent>
                   </AccordionItem>
 
-                  <AccordionItem value="customize" className="border-primary/20">
+                  <AccordionItem
+                    value="customize"
+                    className="border-primary/20"
+                  >
                     <AccordionTrigger className="font-display text-sm tracking-wider text-foreground hover:text-primary hover:no-underline">
                       Can I customize the themes or create my own?
                     </AccordionTrigger>
                     <AccordionContent className="text-foreground/80">
-                      Absolutely. Themes are defined as CSS variables using the oklch() color space, applied via a <code className="rounded bg-primary/10 px-1.5 py-0.5 font-mono text-xs text-primary">data-theme</code> attribute. You can override any variable in your own CSS or create entirely new themes by defining a new set of color tokens following the same pattern.
+                      Absolutely. Themes are defined as CSS variables using the
+                      oklch() color space, applied via a{" "}
+                      <code className="rounded bg-primary/10 px-1.5 py-0.5 font-mono text-xs text-primary">
+                        data-theme
+                      </code>{" "}
+                      attribute. You can override any variable in your own CSS
+                      or create entirely new themes by defining a new set of
+                      color tokens following the same pattern.
                     </AccordionContent>
                   </AccordionItem>
 
@@ -871,25 +972,43 @@ export default function Home() {
                       Do the 3D components affect performance?
                     </AccordionTrigger>
                     <AccordionContent className="text-foreground/80">
-                      The 3D components (Grid3D, Tunnel, GodAvatar) use Three.js and are dynamically imported with <code className="rounded bg-primary/10 px-1.5 py-0.5 font-mono text-xs text-primary">ssr: false</code> so they don&apos;t impact server-side rendering or initial bundle size. They only load on the client when needed. You can also use the intensity system to control the level of visual effects.
+                      The 3D components (Grid3D, Tunnel, GodAvatar) use Three.js
+                      and are dynamically imported with{" "}
+                      <code className="rounded bg-primary/10 px-1.5 py-0.5 font-mono text-xs text-primary">
+                        ssr: false
+                      </code>{" "}
+                      so they don&apos;t impact server-side rendering or initial
+                      bundle size. They only load on the client when needed. You
+                      can also use the intensity system to control the level of
+                      visual effects.
                     </AccordionContent>
                   </AccordionItem>
 
-                  <AccordionItem value="frameworks" className="border-primary/20">
+                  <AccordionItem
+                    value="frameworks"
+                    className="border-primary/20"
+                  >
                     <AccordionTrigger className="font-display text-sm tracking-wider text-foreground hover:text-primary hover:no-underline">
                       Does it work with frameworks other than Next.js?
                     </AccordionTrigger>
                     <AccordionContent className="text-foreground/80">
-                      The Gridcn components work with any React framework that supports shadcn/ui — including Next.js, Vite, Remix, and Astro. Since they&apos;re installed directly into your project as source code (not a dependency), you have full control and can adapt them to your stack.
+                      SC Timeline components work with any React framework that
+                      supports shadcn/ui — including Next.js, Vite, Remix, and
+                      Astro. Since they&apos;re installed directly into your
+                      project as source code (not a dependency), you have full
+                      control and can adapt them to your stack.
                     </AccordionContent>
                   </AccordionItem>
 
                   <AccordionItem value="free" className="border-primary/20">
                     <AccordionTrigger className="font-display text-sm tracking-wider text-foreground hover:text-primary hover:no-underline">
-                      Is The Gridcn free to use?
+                      Is SC Timeline free to use?
                     </AccordionTrigger>
                     <AccordionContent className="text-foreground/80">
-                      Yes, The Gridcn is completely free and open source. You can use it in personal and commercial projects. Components are added to your codebase as source files, giving you full ownership and the freedom to modify anything.
+                      Yes, SC Timeline is completely free and open source. You
+                      can use it in personal and commercial projects. Components
+                      are added to your codebase as source files, giving you
+                      full ownership and the freedom to modify anything.
                     </AccordionContent>
                   </AccordionItem>
                 </Accordion>
@@ -920,7 +1039,8 @@ export default function Home() {
                 TEMPLATES
               </h2>
               <p className="mx-auto mt-4 max-w-xl text-foreground/80">
-                Full-page layouts showing how The Gridcn components work together in real-world applications
+                Full-page layouts showing how SC Timeline components work
+                together in real-world applications
               </p>
             </div>
 
@@ -948,13 +1068,24 @@ export default function Home() {
                   DASHBOARD
                 </h3>
                 <p className="mb-4 text-sm text-foreground/60">
-                  Analytics dashboard with data cards, charts, metrics, sidebar navigation, and real-time status indicators.
+                  Analytics dashboard with data cards, charts, metrics, sidebar
+                  navigation, and real-time status indicators.
                 </p>
 
                 <div className="flex items-center gap-2 font-mono text-[10px] tracking-widest text-primary/70 transition-colors group-hover:text-primary">
                   <span>LAUNCH TEMPLATE</span>
-                  <svg className="h-3 w-3 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                  <svg
+                    className="h-3 w-3 transition-transform group-hover:translate-x-1"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M9 5l7 7-7 7"
+                    />
                   </svg>
                 </div>
               </Link>
@@ -982,13 +1113,24 @@ export default function Home() {
                   LANDING PAGE
                 </h3>
                 <p className="mb-4 text-sm text-foreground/60">
-                  Marketing landing page with hero section, feature grid, testimonials, pricing cards, and call-to-action blocks.
+                  Marketing landing page with hero section, feature grid,
+                  testimonials, pricing cards, and call-to-action blocks.
                 </p>
 
                 <div className="flex items-center gap-2 font-mono text-[10px] tracking-widest text-primary/70 transition-colors group-hover:text-primary">
                   <span>LAUNCH TEMPLATE</span>
-                  <svg className="h-3 w-3 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                  <svg
+                    className="h-3 w-3 transition-transform group-hover:translate-x-1"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M9 5l7 7-7 7"
+                    />
                   </svg>
                 </div>
               </Link>
@@ -1001,8 +1143,18 @@ export default function Home() {
                 className="group relative inline-flex items-center gap-2 overflow-hidden rounded border border-primary/40 bg-primary/10 px-8 py-3 font-mono text-xs uppercase tracking-widest text-primary transition-all hover:bg-primary/20 hover:shadow-[0_0_20px_rgba(var(--primary-rgb,0,180,255),0.15)]"
               >
                 Browse All Templates
-                <svg className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                <svg
+                  className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M9 5l7 7-7 7"
+                  />
                 </svg>
               </Link>
             </div>
@@ -1023,9 +1175,7 @@ export default function Home() {
               <div className="absolute -bottom-px -right-px h-4 w-4 border-b-2 border-r-2 border-primary" />
 
               {/* Scanline effect */}
-              <div
-                className="crt-scanlines pointer-events-none absolute inset-0 opacity-[0.03]"
-              />
+              <div className="crt-scanlines pointer-events-none absolute inset-0 opacity-[0.03]" />
 
               {/* Header bar */}
               <div className="relative border-b border-primary/30 bg-primary/5 px-4 py-2">
@@ -1068,14 +1218,12 @@ export default function Home() {
       </main>
 
       {/* Footer */}
-      <footer
-        className="relative z-10 border-t border-primary/30 bg-panel"
-      >
+      <footer className="relative z-10 border-t border-primary/30 bg-panel">
         {/* CRT scanline effect */}
         <div className="crt-scanlines pointer-events-none absolute inset-0 opacity-[0.03]" />
         {/* Footer uplink bar */}
         <UplinkHeader
-          leftText="SYSTEM: THE GRIDCN v1.0.0"
+          leftText="SYSTEM: SC TIMELINE v1.0.0"
           rightText="UPTIME: 99.9% - END OF LINE"
         />
 
@@ -1089,24 +1237,20 @@ export default function Home() {
                 <div className="tracking-widest text-foreground">
                   TRON-INSPIRED
                 </div>
-                <div className="tracking-wider text-primary">
-                  THEME SYSTEM
-                </div>
+                <div className="tracking-wider text-primary">THEME SYSTEM</div>
               </div>
             </div>
 
             {/* Tech stack */}
             <div className="flex flex-wrap items-center justify-center gap-3">
-              {["React", "Tailwind", "shadcn/ui", "Three.js"].map(
-                (tech) => (
-                  <span
-                    key={tech}
-                    className="border border-primary/30 bg-primary/5 px-2 py-1 font-mono text-[9px] tracking-wider text-foreground"
-                  >
-                    {tech}
-                  </span>
-                )
-              )}
+              {["React", "Tailwind", "shadcn/ui", "Three.js"].map((tech) => (
+                <span
+                  key={tech}
+                  className="border border-primary/30 bg-primary/5 px-2 py-1 font-mono text-[9px] tracking-wider text-foreground"
+                >
+                  {tech}
+                </span>
+              ))}
             </div>
           </div>
 

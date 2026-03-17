@@ -108,6 +108,7 @@ export function TronHeader({ navItems }: TronHeaderProps) {
     { href: "/components", label: "COMPONENTS" },
     { href: "/templates", label: "TEMPLATES" },
     { href: "/game", label: "GAME" },
+    { href: "/login", label: "LOGIN" },
   ];
 
   const items = navItems || defaultNavItems;
@@ -132,13 +133,9 @@ export function TronHeader({ navItems }: TronHeaderProps) {
   return (
     <header className="sticky top-0 z-50">
       {/* Main header bar */}
-      <div
-        className="relative border-b border-primary/30 bg-panel"
-      >
+      <div className="relative border-b border-primary/30 bg-panel">
         {/* CRT scanline effect */}
-        <div
-          className="crt-scanlines pointer-events-none absolute inset-0 opacity-[0.03]"
-        />
+        <div className="crt-scanlines pointer-events-none absolute inset-0 opacity-[0.03]" />
         {/* Top accent line */}
         <div className="absolute left-0 right-0 top-0 h-px bg-gradient-to-r from-transparent via-primary to-transparent" />
 
@@ -161,7 +158,7 @@ export function TronHeader({ navItems }: TronHeaderProps) {
                     "group relative px-4 py-2 font-mono text-xs tracking-widest transition-colors",
                     pathname === item.href
                       ? "text-primary"
-                      : "text-foreground hover:text-primary"
+                      : "text-foreground hover:text-primary",
                   )}
                 >
                   {/* Active/Hover indicator */}
@@ -170,7 +167,7 @@ export function TronHeader({ navItems }: TronHeaderProps) {
                       "absolute inset-x-2 bottom-0 h-px bg-primary transition-transform",
                       pathname === item.href
                         ? "scale-x-100"
-                        : "scale-x-0 group-hover:scale-x-100"
+                        : "scale-x-0 group-hover:scale-x-100",
                     )}
                   />
                   {item.label}
@@ -216,9 +213,7 @@ export function TronHeader({ navItems }: TronHeaderProps) {
       <div
         className={cn(
           "fixed inset-0 z-40 bg-background/80 backdrop-blur-sm transition-opacity lg:hidden",
-          mobileMenuOpen
-            ? "opacity-100"
-            : "pointer-events-none opacity-0"
+          mobileMenuOpen ? "opacity-100" : "pointer-events-none opacity-0",
         )}
         onClick={() => setMobileMenuOpen(false)}
       />
@@ -227,13 +222,11 @@ export function TronHeader({ navItems }: TronHeaderProps) {
       <div
         className={cn(
           "fixed right-0 top-0 z-50 h-full w-72 transform border-l border-primary/30 bg-panel transition-transform duration-300 ease-in-out lg:hidden",
-          mobileMenuOpen ? "translate-x-0" : "translate-x-full"
+          mobileMenuOpen ? "translate-x-0" : "translate-x-full",
         )}
       >
         {/* CRT scanline effect */}
-        <div
-          className="crt-scanlines pointer-events-none absolute inset-0 opacity-[0.03]"
-        />
+        <div className="crt-scanlines pointer-events-none absolute inset-0 opacity-[0.03]" />
         {/* Menu Header - Tron terminal style */}
         <div className="relative flex h-14 items-center justify-between border-b border-primary/20 px-4">
           {/* Top accent line */}
@@ -265,7 +258,7 @@ export function TronHeader({ navItems }: TronHeaderProps) {
                   "group relative flex items-center gap-3 rounded border px-4 py-3 font-mono text-sm tracking-widest transition-all",
                   pathname === item.href
                     ? "border-primary bg-primary/10 text-primary"
-                    : "border-primary/20 text-foreground/80 hover:border-primary/50 hover:bg-primary/5 hover:text-primary"
+                    : "border-primary/20 text-foreground/80 hover:border-primary/50 hover:bg-primary/5 hover:text-primary",
                 )}
               >
                 {/* Index number */}
