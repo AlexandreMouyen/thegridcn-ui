@@ -3,7 +3,8 @@
 import * as React from "react";
 import { useSession, signOut } from "next-auth/react";
 import Image from "next/image";
-import { LogOut } from "lucide-react";
+import Link from "next/link";
+import { LogOut, Clock, Shield } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { UserRoleBadge } from "./user-role-badge";
 import { USER_ROLES, UserRole } from "@/types/user";
@@ -149,6 +150,30 @@ export function HeaderAuthSection() {
 
           {/* Actions */}
           <div className="py-1">
+            {/* Admin links — only for ADMIN / MODERATOR */}
+            {(user.roles ?? []).some((r) =>
+              ([USER_ROLES.ADMIN, USER_ROLES.MODERATOR] as string[]).includes(
+                r,
+              ),
+            ) && (
+              <>
+                <div className="px-4 pt-2.5 pb-1 flex items-center gap-1.5">
+                  <Shield className="h-2.5 w-2.5 text-primary/50" />
+                  <span className="font-mono text-[8px] uppercase tracking-[0.2em] text-foreground/35">
+                    Admin
+                  </span>
+                </div>
+                <Link
+                  href="/admin/timeline/eras"
+                  onClick={() => setOpen(false)}
+                  className="flex w-full items-center gap-3 px-4 py-2 font-mono text-xs tracking-wider text-foreground/70 transition-colors hover:bg-primary/5 hover:text-primary"
+                >
+                  <Clock className="h-3.5 w-3.5" />
+                  TIMELINE ERAS
+                </Link>
+                <div className="mx-4 my-1 h-px bg-primary/10" />
+              </>
+            )}
             <button
               onClick={() => {
                 setOpen(false);

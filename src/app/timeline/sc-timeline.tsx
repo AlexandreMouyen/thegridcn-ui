@@ -8,12 +8,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { selectableThemes, useTheme } from "@/components/theme";
 
 import { GridScanOverlay, UplinkHeader } from "@/components/thegridcn";
-import {
-  eras,
-  events,
-  type ScEvent,
-  type ScEra,
-} from "@/data/sc-timeline-data";
+import { type IEra, type IEvent, type LocalizedString } from "@/types/timeline";
 import { GridMap } from "@/components/website";
 
 const GodAvatar3D = dynamic(
@@ -94,8 +89,15 @@ const SIG_CONFIG = {
   },
 };
 
+// ─── Locale helper ──────────────────────────────────────────────────────────────
+// Falls back: requested locale → "en" → first available → ""
+function t(ls: LocalizedString | undefined, locale: string): string {
+  if (!ls) return "";
+  return ls[locale] ?? ls["en"] ?? Object.values(ls)[0] ?? "";
+}
+
 // ─── Date formatting ────────────────────────────────────────────────────────────
-function formatDate(date: ScEvent["date"]): string {
+function formatDate(date: IEvent["date"]): string {
   const { year, month, day } = date;
   if (day && month) {
     const d = new Date(year, month - 1, day);
@@ -159,8 +161,9 @@ function Scanlines() {
 
 // ─── Timeline Card ────────────────────────────────────────────────────────────────
 interface TimelineCardProps {
-  event: ScEvent;
-  era: ScEra;
+  event: IEvent;
+  era: IEra;
+  locale: string;
   indexDiff: number;
   cardOffset: number;
   isActive: boolean;
@@ -173,6 +176,7 @@ interface TimelineCardProps {
 function TimelineCard({
   event,
   era,
+  locale,
   indexDiff,
   cardOffset,
   isActive,
@@ -232,7 +236,7 @@ function TimelineCard({
           {/* Era + significance row */}
           <div className="flex items-start justify-between gap-2 mb-3">
             <span className="inline-flex items-center rounded-sm px-2 py-0.5 font-mono text-[9px] uppercase tracking-widest border border-primary/25 bg-primary/8 text-primary/70 shrink-0">
-              {era.shortName}
+              {t(era.shortName, locale)}
             </span>
             {event.significance && event.significance !== "standard" && (
               <span
@@ -256,7 +260,7 @@ function TimelineCard({
 
           {/* Title */}
           <h2 className="font-orbitron text-[1.05rem] leading-snug font-semibold text-foreground">
-            {event.title}
+            {t(event.title, locale)}
           </h2>
         </div>
 
@@ -299,7 +303,7 @@ function TimelineCard({
             {/* Content HTML — static trusted developer data, no XSS risk */}
             <div
               className="[&>p]:mb-3 [&>p:last-child]:mb-0 [&_strong]:text-foreground/90 [&_em]:text-primary/80 [&_em]:not-italic [&_em]:font-medium"
-              dangerouslySetInnerHTML={{ __html: event.content }}
+              dangerouslySetInnerHTML={{ __html: t(event.content, locale) }}
             />
           </div>
 
@@ -334,13 +338,23 @@ function TimelineCard({
 interface EraNavigatorProps {
   currentIndex: number;
   onGoTo: (index: number) => void;
+  eras: IEra[];
+  events: IEvent[];
+  locale: string;
 }
 
-function EraNavigator({ currentIndex, onGoTo }: EraNavigatorProps) {
+function EraNavigator({
+  currentIndex,
+  onGoTo,
+  eras,
+  events,
+  locale,
+}: EraNavigatorProps) {
   const currentEvent = events[currentIndex];
-  const currentEra = eras.find((e) => e.id === currentEvent.eraId) ?? eras[0];
-  const eraEvents = events.filter((e) => e.eraId === currentEra.id);
-  const indexInEra = eraEvents.findIndex((e) => e.id === currentEvent.id);
+  const currentEra =
+    eras.find((e) => e.slug === currentEvent.eraSlug) ?? eras[0];
+  const eraEvents = events.filter((e) => e.eraSlug === currentEra.slug);
+  const indexInEra = eraEvents.findIndex((e) => e.slug === currentEvent.slug);
 
   return (
     <div className="w-full max-w-2xl mx-auto px-4">
@@ -356,7 +370,7 @@ function EraNavigator({ currentIndex, onGoTo }: EraNavigatorProps) {
               Current Era
             </p>
             <h3 className="font-orbitron text-sm font-semibold uppercase tracking-wider text-primary">
-              {currentEra.name}
+              {t(currentEra.name, locale)}
             </h3>
             <p className="font-mono text-[9px] text-foreground/35 tracking-wider mt-0.5">
               {currentEra.startYear} SE —{" "}
@@ -379,22 +393,22 @@ function EraNavigator({ currentIndex, onGoTo }: EraNavigatorProps) {
 
         {/* Era description */}
         <p className="font-rajdhani text-[0.8rem] text-foreground/40 mb-4 leading-snug">
-          {currentEra.description}
+          {t(currentEra.description, locale)}
         </p>
 
         {/* ── Event dots for active era ── */}
         <div className="flex flex-wrap justify-center items-center gap-x-3 gap-y-2 py-1">
           {eraEvents.map((ev, i) => {
-            const globalIdx = events.findIndex((e) => e.id === ev.id);
+            const globalIdx = events.findIndex((e) => e.slug === ev.slug);
             const isActiveDot = i === indexInEra;
             return (
               <button
-                key={ev.id}
+                key={ev.slug}
                 data-active={isActiveDot ? "true" : undefined}
                 onClick={() => onGoTo(globalIdx)}
-                title={ev.title}
+                title={t(ev.title, locale)}
                 className="group flex flex-col items-center gap-1.5 shrink-0 focus-visible:outline-none"
-                aria-label={`Go to: ${ev.title}`}
+                aria-label={`Go to: ${t(ev.title, locale)}`}
               >
                 <span
                   className={cn(
@@ -420,11 +434,11 @@ function EraNavigator({ currentIndex, onGoTo }: EraNavigatorProps) {
         aria-label="Historical Eras"
       >
         {eras.map((era) => {
-          const isActive = era.id === currentEra.id;
-          const firstIdx = events.findIndex((e) => e.eraId === era.id);
+          const isActive = era.slug === currentEra.slug;
+          const firstIdx = events.findIndex((e) => e.eraSlug === era.slug);
           return (
             <button
-              key={era.id}
+              key={era.slug}
               role="tab"
               aria-selected={isActive}
               onClick={() => onGoTo(firstIdx)}
@@ -435,7 +449,7 @@ function EraNavigator({ currentIndex, onGoTo }: EraNavigatorProps) {
                   : "border border-foreground/12 text-foreground/35 hover:text-foreground/65 hover:border-foreground/25",
               )}
             >
-              {era.shortName}
+              {t(era.shortName, locale)}
               {isActive && (
                 <span className="absolute -top-1.5 -right-1.5 h-2 w-2 rounded-full bg-primary shadow-[0_0_6px_var(--primary)]" />
               )}
@@ -492,7 +506,13 @@ function ThemeSelector() {
 }
 
 // ─── Main Component ─────────────────────────────────────────────────────────────
-export function ScTimeline() {
+interface ScTimelineProps {
+  eras: IEra[];
+  events: IEvent[];
+  locale?: string;
+}
+
+export function ScTimeline({ eras, events, locale = "en" }: ScTimelineProps) {
   const { theme } = useTheme();
   const isMobile = useIsMobile();
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -531,13 +551,16 @@ export function ScTimeline() {
     if (currentIndex === events.length - 1) return;
     setExpanded(false);
     setCurrentIndex((i) => i + 1);
-  }, [currentIndex]);
+  }, [currentIndex, events.length]);
 
-  const goToSlide = useCallback((index: number) => {
-    const clamped = Math.max(0, Math.min(events.length - 1, index));
-    setExpanded(false);
-    setCurrentIndex(clamped);
-  }, []);
+  const goToSlide = useCallback(
+    (index: number) => {
+      const clamped = Math.max(0, Math.min(events.length - 1, index));
+      setExpanded(false);
+      setCurrentIndex(clamped);
+    },
+    [events.length],
+  );
 
   // Keyboard nav
   useEffect(() => {
@@ -568,8 +591,10 @@ export function ScTimeline() {
 
   const currentEvent = events[currentIndex];
   const progress = (currentIndex / (events.length - 1)) * 100;
-  const currentEraName =
-    eras.find((e) => e.id === currentEvent?.eraId)?.name ?? "";
+  const currentEraName = t(
+    eras.find((e) => e.slug === currentEvent?.eraSlug)?.name,
+    locale,
+  );
   const currentYear = currentEvent?.date.year ?? "";
 
   return (
@@ -691,12 +716,13 @@ export function ScTimeline() {
             {events.map((event, index) => {
               const diff = index - currentIndex;
               if (Math.abs(diff) > 3) return null;
-              const era = eras.find((e) => e.id === event.eraId) ?? eras[0];
+              const era = eras.find((e) => e.slug === event.eraSlug) ?? eras[0];
               return (
                 <TimelineCard
-                  key={event.id}
+                  key={event.slug}
                   event={event}
                   era={era}
+                  locale={locale}
                   indexDiff={diff}
                   cardOffset={cardOffset}
                   isActive={index === currentIndex}
@@ -745,7 +771,13 @@ export function ScTimeline() {
 
         {/* ── Era Navigator ─────────────────────────────────── */}
         <div className="relative z-10 mt-4">
-          <EraNavigator currentIndex={currentIndex} onGoTo={goToSlide} />
+          <EraNavigator
+            currentIndex={currentIndex}
+            onGoTo={goToSlide}
+            eras={eras}
+            events={events}
+            locale={locale}
+          />
         </div>
 
         {/* bottom spacing */}

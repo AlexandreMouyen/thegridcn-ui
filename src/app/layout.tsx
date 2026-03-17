@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist_Mono, Orbitron, Rajdhani } from "next/font/google";
 import { ThemeProvider } from "@/components/theme";
 import { AuthProvider } from "@/components/layout/auth-provider";
+import { AdminFloatPanel } from "@/components/layout";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 import "@/styles/tron-style.css";
@@ -184,10 +185,11 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="antialiased">
+      <body className="antialiased" suppressHydrationWarning>
         <AuthProvider>
           <ThemeProvider>
             {children}
+            <AdminFloatPanel />
             <Toaster
               position="bottom-right"
               toastOptions={{

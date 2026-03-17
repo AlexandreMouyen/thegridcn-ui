@@ -1,7 +1,7 @@
 import { IUser, USER_ROLES } from "@/types/user";
 import mongoose, { Model } from "mongoose";
 
-export const UserSchema = new mongoose.Schema(
+export const UserSchema = new mongoose.Schema<IUser>(
   {
     firstName: { type: String },
     lastName: { type: String },

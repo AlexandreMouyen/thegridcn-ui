@@ -76,7 +76,7 @@ import mongoose, { Model } from "mongoose";
 
 import { IUser, USER_ROLES, USER_GENDERS } from "@/types/user";
 
-const UserSchema = new mongoose.Schema(
+const UserSchema = new mongoose.Schema<IUser>(
   {
     firstName: { type: String },
     lastName: { type: String },
@@ -105,6 +105,7 @@ export default (mongoose.models.User as IUserModel) ||
 
 **Checklist:**
 
+- [ ] Schema is typed: `new mongoose.Schema<IModel>(...)` — pass the interface as a generic so TypeScript validates field definitions against the interface
 - [ ] Schema field `enum` values come from `Object.values(YOUR_CONST)` — never hardcoded strings
 - [ ] Default values reference the const (e.g. `USER_ROLES.VISITOR`), not `"VISITOR"`
 - [ ] `{ timestamps: true }` for `createdAt`/`updatedAt`
@@ -180,6 +181,7 @@ await User.findByIdAndUpdate(id, { image: newImage }, { new: true });
 | ❌ Anti-pattern                                               | ✅ Correct                                         |
 | ------------------------------------------------------------- | -------------------------------------------------- |
 | `InferSchemaType<typeof UserSchema>` for the public interface | Explicit `interface IUser { ... }` in `types/`     |
+| `new mongoose.Schema({ ... })` without generic                | `new mongoose.Schema<IUser>({ ... })`              |
 | `roles: { default: ["VISITOR"] }` (raw string)                | `roles: { default: [USER_ROLES.VISITOR] }`         |
 | Importing from `src/models/` inside `src/types/`              | Types file has zero model imports                  |
 | `mongoose.model("User", UserSchema)` without hot-reload guard | `mongoose.models.User \|\| mongoose.model(...)`    |
@@ -211,7 +213,7 @@ export interface I<Model> {
 import mongoose, { Model } from "mongoose";
 import { I<Model> } from "@/types/<model>";
 
-const <Model>Schema = new mongoose.Schema(
+const <Model>Schema = new mongoose.Schema<I<Model>>(
   {
     // ... fields
   },
