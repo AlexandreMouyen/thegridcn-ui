@@ -20,14 +20,8 @@ export default function TimelinePage() {
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <TronHeader />
-      {/* Top padding accounts for the fixed header */}
-      <main className="flex-1 md:pt-16">
-        {/* Grid map overlay */}
-        <GridMap />
-        <GridScanOverlay />
 
-        <ScTimeline />
-      </main>
+      <ScTimeline />
     </div>
   );
 }

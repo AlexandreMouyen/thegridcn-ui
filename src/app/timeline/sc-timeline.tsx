@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { selectableThemes, useTheme } from "@/components/theme";
 
-import { GridScanOverlay } from "@/components/thegridcn";
+import { GridScanOverlay, UplinkHeader } from "@/components/thegridcn";
 import {
   eras,
   events,
@@ -493,6 +493,7 @@ function ThemeSelector() {
 
 // ─── Main Component ─────────────────────────────────────────────────────────────
 export function ScTimeline() {
+  const { theme } = useTheme();
   const isMobile = useIsMobile();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [expanded, setExpanded] = useState(false);
@@ -567,173 +568,189 @@ export function ScTimeline() {
 
   const currentEvent = events[currentIndex];
   const progress = (currentIndex / (events.length - 1)) * 100;
+  const currentEraName =
+    eras.find((e) => e.id === currentEvent?.eraId)?.name ?? "";
+  const currentYear = currentEvent?.date.year ?? "";
 
   return (
-    <div className="relative w-full overflow-x-hidden">
-      {/* 3D grid background — fixed, same as homepage */}
-      <div className="pointer-events-none fixed inset-0 z-0">
-        <Grid3D className="h-full w-full" cameraAnimation />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/20 via-background/40 to-background/65" />
-      </div>
+    <main className="flex-1">
+      {/* Uplink header bar */}
+      <UplinkHeader
+        leftText={`ERA: ${currentEraName.toUpperCase()} — ${currentYear} SE`}
+        rightText={`THEME: ${theme.toUpperCase()} • ARCHIVE: ${events.length} ENTRIES`}
+      />
 
-      {/* Large HUD corner frames — CTA style, offset below sticky header (h-16 = 64px) */}
-      <div
-        className="pointer-events-none fixed left-4 right-4 bottom-4 z-20 hidden lg:block"
-        style={{ top: "72px" }}
-      >
-        <div className="absolute left-0 top-0 h-16 w-16 border-l-2 border-t-2 border-primary/50" />
-        <div className="absolute right-0 top-0 h-16 w-16 border-r-2 border-t-2 border-primary/50" />
-        <div className="absolute bottom-0 left-0 h-16 w-16 border-b-2 border-l-2 border-primary/50" />
-        <div className="absolute bottom-0 right-0 h-16 w-16 border-b-2 border-r-2 border-primary/50" />
-      </div>
-
-      {/* ── Page header ───────────────────────────────────── */}
-      <div className="relative z-10 px-4 pt-10 pb-8 text-center">
-        <div className="inline-flex items-center gap-2.5 mb-4 font-mono text-[11px] uppercase tracking-[0.2em] text-primary/55">
-          <span className="h-px w-10 bg-gradient-to-r from-transparent to-primary/50" />
-          UEE Historical Archive
-          <span className="h-px w-10 bg-gradient-to-l from-transparent to-primary/50" />
-        </div>
-        <h1 className="font-orbitron text-3xl sm:text-4xl font-bold tracking-tight text-foreground">
-          Star Citizen Lore
-        </h1>
-        <p className="mt-3 font-rajdhani text-base text-foreground/50 max-w-md mx-auto">
-          {events.length} archive entries &middot; {eras.length} historical eras
-          &middot; 2075 SE – 2954 SE
-        </p>
-
-        {/* Theme dot-picker */}
-        <ThemeSelector />
-
-        {/* Progress bar */}
-        <div className="mt-6 max-w-xs mx-auto">
-          <div className="relative h-1.5 bg-foreground/10 rounded-full overflow-hidden">
-            <div
-              className="absolute left-0 top-0 h-full bg-primary transition-[width] duration-500 ease-out"
-              style={{ width: `${progress}%` }}
-            />
-            {/* Glow */}
-            <div
-              className="absolute top-0 h-full w-6 bg-primary/60 blur-sm transition-[left] duration-500 ease-out"
-              style={{ left: `calc(${progress}% - 1.5rem)` }}
-            />
-          </div>
-          <div className="flex justify-between mt-1.5 font-mono text-[9px] text-foreground/28">
-            <span>2075 SE</span>
-            <span className="text-primary/60">{currentEvent.date.year} SE</span>
-            <span>2954 SE</span>
-          </div>
-        </div>
-      </div>
-
-      {/* ── Carousel area ─────────────────────────────────── */}
-      <div className="relative">
-        {/* Nav arrows — hidden on very small screens, visible md+ */}
-        <div className="absolute inset-y-0 left-0 right-0 flex items-center justify-between px-2 z-20 pointer-events-none hidden md:flex">
-          <button
-            onClick={prevSlide}
-            disabled={currentIndex === 0}
-            aria-label="Previous event"
-            className={cn(
-              "pointer-events-auto flex h-10 w-10 items-center justify-center rounded-sm border transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/60",
-              currentIndex === 0
-                ? "border-foreground/8 text-foreground/18 cursor-not-allowed"
-                : "border-primary/28 bg-background/70 backdrop-blur-sm text-primary hover:border-primary/60 hover:bg-primary/10 hover:shadow-[0_0_12px_rgba(0,0,0,0.3)]",
-            )}
-          >
-            <ChevronLeft className="h-5 w-5" />
-          </button>
-
-          <button
-            onClick={nextSlide}
-            disabled={currentIndex === events.length - 1}
-            aria-label="Next event"
-            className={cn(
-              "pointer-events-auto flex h-10 w-10 items-center justify-center rounded-sm border transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/60",
-              currentIndex === events.length - 1
-                ? "border-foreground/8 text-foreground/18 cursor-not-allowed"
-                : "border-primary/28 bg-background/70 backdrop-blur-sm text-primary hover:border-primary/60 hover:bg-primary/10 hover:shadow-[0_0_12px_rgba(0,0,0,0.3)]",
-            )}
-          >
-            <ChevronRight className="h-5 w-5" />
-          </button>
+      {/* Grid map overlay */}
+      <GridMap />
+      <GridScanOverlay />
+      <div className="relative w-full overflow-x-hidden">
+        {/* 3D grid background — fixed, same as homepage */}
+        <div className="pointer-events-none fixed inset-0 z-0">
+          <Grid3D className="h-full w-full" cameraAnimation />
+          <div className="absolute inset-0 bg-gradient-to-b from-background/20 via-background/40 to-background/65" />
         </div>
 
-        {/* Cards stage — height driven by ResizeObserver on the active card */}
+        {/* Large HUD corner frames — CTA style, offset below sticky header (h-16 = 64px) */}
         <div
-          className="relative flex items-start justify-center"
-          onPointerDown={handlePointerDown}
-          onPointerUp={handlePointerUp}
-          onPointerLeave={handlePointerCancel}
-          onPointerCancel={handlePointerCancel}
-          style={{
-            minHeight: stageMinH,
-            touchAction: "pan-y",
-            transition: "min-height 0.45s cubic-bezier(0.25,0.46,0.45,0.94)",
-          }}
+          className="pointer-events-none fixed left-4 right-4 bottom-4 z-20 hidden lg:block"
+          style={{ top: "108px" }}
         >
-          {events.map((event, index) => {
-            const diff = index - currentIndex;
-            if (Math.abs(diff) > 3) return null;
-            const era = eras.find((e) => e.id === event.eraId) ?? eras[0];
-            return (
-              <TimelineCard
-                key={event.id}
-                event={event}
-                era={era}
-                indexDiff={diff}
-                cardOffset={cardOffset}
-                isActive={index === currentIndex}
-                onActivate={() => goToSlide(index)}
-                expanded={index === currentIndex && expanded}
-                onToggleExpand={() => setExpanded((v) => !v)}
-                cardRef={index === currentIndex ? activeCardRef : undefined}
+          <div className="absolute left-0 top-0 h-16 w-16 border-l-2 border-t-2 border-primary/50" />
+          <div className="absolute right-0 top-0 h-16 w-16 border-r-2 border-t-2 border-primary/50" />
+          <div className="absolute bottom-0 left-0 h-16 w-16 border-b-2 border-l-2 border-primary/50" />
+          <div className="absolute bottom-0 right-0 h-16 w-16 border-b-2 border-r-2 border-primary/50" />
+        </div>
+
+        {/* ── Page header ───────────────────────────────────── */}
+        <div className="relative z-10 px-4 pt-10 pb-8 text-center">
+          <div className="inline-flex items-center gap-2.5 mb-4 font-mono text-[11px] uppercase tracking-[0.2em] text-primary/55">
+            <span className="h-px w-10 bg-gradient-to-r from-transparent to-primary/50" />
+            UEE Historical Archive
+            <span className="h-px w-10 bg-gradient-to-l from-transparent to-primary/50" />
+          </div>
+          <h1 className="font-orbitron text-3xl sm:text-4xl font-bold tracking-tight text-foreground">
+            Star Citizen Lore
+          </h1>
+          <p className="mt-3 font-rajdhani text-base text-foreground/50 max-w-md mx-auto">
+            {events.length} archive entries &middot; {eras.length} historical
+            eras &middot; 2075 SE – 2954 SE
+          </p>
+
+          {/* Theme dot-picker */}
+          <ThemeSelector />
+
+          {/* Progress bar */}
+          <div className="mt-6 max-w-xs mx-auto">
+            <div className="relative h-1.5 bg-foreground/10 rounded-full overflow-hidden">
+              <div
+                className="absolute left-0 top-0 h-full bg-primary transition-[width] duration-500 ease-out"
+                style={{ width: `${progress}%` }}
               />
-            );
-          })}
+              {/* Glow */}
+              <div
+                className="absolute top-0 h-full w-6 bg-primary/60 blur-sm transition-[left] duration-500 ease-out"
+                style={{ left: `calc(${progress}% - 1.5rem)` }}
+              />
+            </div>
+            <div className="flex justify-between mt-1.5 font-mono text-[9px] text-foreground/28">
+              <span>2075 SE</span>
+              <span className="text-primary/60">
+                {currentEvent.date.year} SE
+              </span>
+              <span>2954 SE</span>
+            </div>
+          </div>
         </div>
 
-        {/* Mobile swipe hint / arrows (below cards) */}
-        <div className="flex items-center justify-center gap-3 mt-4 md:hidden">
-          <button
-            onClick={prevSlide}
-            disabled={currentIndex === 0}
-            aria-label="Previous event"
-            className={cn(
-              "flex h-9 w-9 items-center justify-center rounded-sm border transition-all",
-              currentIndex === 0
-                ? "border-foreground/8 text-foreground/18 cursor-not-allowed"
-                : "border-primary/30 text-primary hover:bg-primary/10",
-            )}
+        {/* ── Carousel area ─────────────────────────────────── */}
+        <div className="relative">
+          {/* Nav arrows — hidden on very small screens, visible md+ */}
+          <div className="absolute inset-y-0 left-0 right-0 flex items-center justify-between px-2 z-20 pointer-events-none hidden md:flex">
+            <button
+              onClick={prevSlide}
+              disabled={currentIndex === 0}
+              aria-label="Previous event"
+              className={cn(
+                "pointer-events-auto flex h-10 w-10 items-center justify-center rounded-sm border transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/60",
+                currentIndex === 0
+                  ? "border-foreground/8 text-foreground/18 cursor-not-allowed"
+                  : "border-primary/28 bg-background/70 backdrop-blur-sm text-primary hover:border-primary/60 hover:bg-primary/10 hover:shadow-[0_0_12px_rgba(0,0,0,0.3)]",
+              )}
+            >
+              <ChevronLeft className="h-5 w-5" />
+            </button>
+
+            <button
+              onClick={nextSlide}
+              disabled={currentIndex === events.length - 1}
+              aria-label="Next event"
+              className={cn(
+                "pointer-events-auto flex h-10 w-10 items-center justify-center rounded-sm border transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/60",
+                currentIndex === events.length - 1
+                  ? "border-foreground/8 text-foreground/18 cursor-not-allowed"
+                  : "border-primary/28 bg-background/70 backdrop-blur-sm text-primary hover:border-primary/60 hover:bg-primary/10 hover:shadow-[0_0_12px_rgba(0,0,0,0.3)]",
+              )}
+            >
+              <ChevronRight className="h-5 w-5" />
+            </button>
+          </div>
+
+          {/* Cards stage — height driven by ResizeObserver on the active card */}
+          <div
+            className="relative flex items-start justify-center"
+            onPointerDown={handlePointerDown}
+            onPointerUp={handlePointerUp}
+            onPointerLeave={handlePointerCancel}
+            onPointerCancel={handlePointerCancel}
+            style={{
+              minHeight: stageMinH,
+              touchAction: "pan-y",
+              transition: "min-height 0.45s cubic-bezier(0.25,0.46,0.45,0.94)",
+            }}
           >
-            <ChevronLeft className="h-4 w-4" />
-          </button>
-          <span className="font-mono text-[10px] text-foreground/35">
-            {currentIndex + 1} / {events.length}
-          </span>
-          <button
-            onClick={nextSlide}
-            disabled={currentIndex === events.length - 1}
-            aria-label="Next event"
-            className={cn(
-              "flex h-9 w-9 items-center justify-center rounded-sm border transition-all",
-              currentIndex === events.length - 1
-                ? "border-foreground/8 text-foreground/18 cursor-not-allowed"
-                : "border-primary/30 text-primary hover:bg-primary/10",
-            )}
-          >
-            <ChevronRight className="h-4 w-4" />
-          </button>
+            {events.map((event, index) => {
+              const diff = index - currentIndex;
+              if (Math.abs(diff) > 3) return null;
+              const era = eras.find((e) => e.id === event.eraId) ?? eras[0];
+              return (
+                <TimelineCard
+                  key={event.id}
+                  event={event}
+                  era={era}
+                  indexDiff={diff}
+                  cardOffset={cardOffset}
+                  isActive={index === currentIndex}
+                  onActivate={() => goToSlide(index)}
+                  expanded={index === currentIndex && expanded}
+                  onToggleExpand={() => setExpanded((v) => !v)}
+                  cardRef={index === currentIndex ? activeCardRef : undefined}
+                />
+              );
+            })}
+          </div>
+
+          {/* Mobile swipe hint / arrows (below cards) */}
+          <div className="flex items-center justify-center gap-3 mt-4 md:hidden">
+            <button
+              onClick={prevSlide}
+              disabled={currentIndex === 0}
+              aria-label="Previous event"
+              className={cn(
+                "flex h-9 w-9 items-center justify-center rounded-sm border transition-all",
+                currentIndex === 0
+                  ? "border-foreground/8 text-foreground/18 cursor-not-allowed"
+                  : "border-primary/30 text-primary hover:bg-primary/10",
+              )}
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+            <span className="font-mono text-[10px] text-foreground/35">
+              {currentIndex + 1} / {events.length}
+            </span>
+            <button
+              onClick={nextSlide}
+              disabled={currentIndex === events.length - 1}
+              aria-label="Next event"
+              className={cn(
+                "flex h-9 w-9 items-center justify-center rounded-sm border transition-all",
+                currentIndex === events.length - 1
+                  ? "border-foreground/8 text-foreground/18 cursor-not-allowed"
+                  : "border-primary/30 text-primary hover:bg-primary/10",
+              )}
+            >
+              <ChevronRight className="h-4 w-4" />
+            </button>
+          </div>
         </div>
-      </div>
 
-      {/* ── Era Navigator ─────────────────────────────────── */}
-      <div className="relative z-10 mt-4">
-        <EraNavigator currentIndex={currentIndex} onGoTo={goToSlide} />
-      </div>
+        {/* ── Era Navigator ─────────────────────────────────── */}
+        <div className="relative z-10 mt-4">
+          <EraNavigator currentIndex={currentIndex} onGoTo={goToSlide} />
+        </div>
 
-      {/* bottom spacing */}
-      <div className="pb-14" />
-    </div>
+        {/* bottom spacing */}
+        <div className="pb-14" />
+      </div>
+    </main>
   );
 }
