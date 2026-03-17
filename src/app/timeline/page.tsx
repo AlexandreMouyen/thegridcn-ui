@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { TronHeader } from "@/components/layout";
 import { ScTimeline } from "./sc-timeline";
+import { GridScanOverlay } from "@/components/website/cinematic-hud";
+import { GridMap } from "@/components/website";
 
 export const metadata: Metadata = {
   title: "SC Lore Timeline | The Gridcn",
@@ -20,6 +22,10 @@ export default function TimelinePage() {
       <TronHeader />
       {/* Top padding accounts for the fixed header */}
       <main className="flex-1 md:pt-16">
+        {/* Grid map overlay */}
+        <GridMap />
+        <GridScanOverlay />
+
         <ScTimeline />
       </main>
     </div>

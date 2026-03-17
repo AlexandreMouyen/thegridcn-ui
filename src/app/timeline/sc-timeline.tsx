@@ -7,16 +7,24 @@ import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { selectableThemes, useTheme } from "@/components/theme";
 
-const GodAvatar3D = dynamic(
-  () => import("@/components/website/god-avatar").then((m) => m.GodAvatar3D),
-  { ssr: false },
-);
+import { GridScanOverlay } from "@/components/thegridcn";
 import {
   eras,
   events,
   type ScEvent,
   type ScEra,
 } from "@/data/sc-timeline-data";
+import { GridMap } from "@/components/website";
+
+const GodAvatar3D = dynamic(
+  () => import("@/components/website/god-avatar").then((m) => m.GodAvatar3D),
+  { ssr: false },
+);
+
+const Grid3D = dynamic(
+  () => import("@/components/thegridcn/grid").then((m) => m.Grid3D),
+  { ssr: false },
+);
 
 // ─── Tag styling config ────────────────────────────────────────────────────────
 const TAG_CONFIG: Record<string, { cls: string; label: string }> = {
@@ -375,7 +383,7 @@ function EraNavigator({ currentIndex, onGoTo }: EraNavigatorProps) {
         </p>
 
         {/* ── Event dots for active era ── */}
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-2 py-1">
+        <div className="flex flex-wrap justify-center items-center gap-x-3 gap-y-2 py-1">
           {eraEvents.map((ev, i) => {
             const globalIdx = events.findIndex((e) => e.id === ev.id);
             const isActiveDot = i === indexInEra;
@@ -562,16 +570,22 @@ export function ScTimeline() {
 
   return (
     <div className="relative w-full overflow-x-hidden">
-      {/* Subtle grid background */}
+      {/* 3D grid background — fixed, same as homepage */}
+      <div className="pointer-events-none fixed inset-0 z-0">
+        <Grid3D className="h-full w-full" cameraAnimation />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/20 via-background/40 to-background/65" />
+      </div>
+
+      {/* Large HUD corner frames — CTA style, offset below sticky header (h-16 = 64px) */}
       <div
-        aria-hidden
-        className="pointer-events-none fixed inset-0 opacity-[0.028]"
-        style={{
-          backgroundImage:
-            "linear-gradient(var(--primary) 1px, transparent 1px), linear-gradient(90deg, var(--primary) 1px, transparent 1px)",
-          backgroundSize: "40px 40px",
-        }}
-      />
+        className="pointer-events-none fixed left-4 right-4 bottom-4 z-20 hidden lg:block"
+        style={{ top: "72px" }}
+      >
+        <div className="absolute left-0 top-0 h-16 w-16 border-l-2 border-t-2 border-primary/50" />
+        <div className="absolute right-0 top-0 h-16 w-16 border-r-2 border-t-2 border-primary/50" />
+        <div className="absolute bottom-0 left-0 h-16 w-16 border-b-2 border-l-2 border-primary/50" />
+        <div className="absolute bottom-0 right-0 h-16 w-16 border-b-2 border-r-2 border-primary/50" />
+      </div>
 
       {/* ── Page header ───────────────────────────────────── */}
       <div className="relative z-10 px-4 pt-10 pb-8 text-center">
@@ -593,15 +607,15 @@ export function ScTimeline() {
 
         {/* Progress bar */}
         <div className="mt-6 max-w-xs mx-auto">
-          <div className="relative h-0.5 bg-foreground/10 rounded-full overflow-hidden">
+          <div className="relative h-1.5 bg-foreground/10 rounded-full overflow-hidden">
             <div
               className="absolute left-0 top-0 h-full bg-primary transition-[width] duration-500 ease-out"
               style={{ width: `${progress}%` }}
             />
             {/* Glow */}
             <div
-              className="absolute top-0 h-full w-4 bg-primary/60 blur-sm transition-[left] duration-500 ease-out"
-              style={{ left: `calc(${progress}% - 1rem)` }}
+              className="absolute top-0 h-full w-6 bg-primary/60 blur-sm transition-[left] duration-500 ease-out"
+              style={{ left: `calc(${progress}% - 1.5rem)` }}
             />
           </div>
           <div className="flex justify-between mt-1.5 font-mono text-[9px] text-foreground/28">
