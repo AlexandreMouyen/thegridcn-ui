@@ -1,31 +1,32 @@
-import type { Metadata } from "next"
-import { Geist_Mono, Orbitron, Rajdhani } from "next/font/google"
-import { ThemeProvider } from "@/components/theme"
-import { Toaster } from "@/components/ui/sonner"
-import "./globals.css"
-import "@/styles/tron-style.css"
-import { Analytics } from '@vercel/analytics/next';
+import type { Metadata } from "next";
+import { Geist_Mono, Orbitron, Rajdhani } from "next/font/google";
+import { ThemeProvider } from "@/components/theme";
+import { AuthProvider } from "@/components/layout/auth-provider";
+import { Toaster } from "@/components/ui/sonner";
+import "./globals.css";
+import "@/styles/tron-style.css";
+import { Analytics } from "@vercel/analytics/next";
 
 // Optimize font loading with next/font — self-hosted, no external requests
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
   display: "swap",
-})
+});
 
 const orbitron = Orbitron({
   variable: "--font-orbitron",
   subsets: ["latin"],
   display: "swap",
   weight: ["400", "500", "600", "700", "800", "900"],
-})
+});
 
 const rajdhani = Rajdhani({
   variable: "--font-rajdhani",
   subsets: ["latin"],
   display: "swap",
   weight: ["300", "400", "500", "600", "700"],
-})
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://thegridcn.com"),
@@ -56,7 +57,7 @@ export const metadata: Metadata = {
     canonical: "https://thegridcn.com",
   },
   manifest: "/manifest.json",
-}
+};
 
 // Inline script to prevent theme flash - runs before React hydrates
 const themeInitScript = `
@@ -77,17 +78,24 @@ const themeInitScript = `
     }
   } catch(e) {}
 })();
-`
+`;
 
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode
+  children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${orbitron.variable} ${rajdhani.variable} ${geistMono.variable}`} suppressHydrationWarning>
+    <html
+      lang="en"
+      className={`${orbitron.variable} ${rajdhani.variable} ${geistMono.variable}`}
+      suppressHydrationWarning
+    >
       <head>
-        <script id="theme-init" dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+        <script
+          id="theme-init"
+          dangerouslySetInnerHTML={{ __html: themeInitScript }}
+        />
         <script
           id="schema-org"
           type="application/ld+json"
@@ -97,100 +105,103 @@ export default function RootLayout({
               "@graph": [
                 {
                   "@type": "WebSite",
-                  "name": "SC Timeline",
-                  "url": "https://thegridcn.com",
-                  "description": "A Tron-inspired theme and component library for shadcn/ui with Greek god color schemes, 3D effects, and HUD-style UI elements.",
+                  name: "SC Timeline",
+                  url: "https://thegridcn.com",
+                  description:
+                    "A Tron-inspired theme and component library for shadcn/ui with Greek god color schemes, 3D effects, and HUD-style UI elements.",
                 },
                 {
                   "@type": "FAQPage",
-                  "mainEntity": [
+                  mainEntity: [
                     {
                       "@type": "Question",
-                      "name": "What is SC Timeline?",
-                      "acceptedAnswer": {
+                      name: "What is SC Timeline?",
+                      acceptedAnswer: {
                         "@type": "Answer",
-                        "text": "SC Timeline is a Tron-inspired theme and component library built on top of shadcn/ui. It provides 50+ pre-styled components, 6 Greek god color themes, 3D effects powered by Three.js, and HUD-style UI elements — all designed to create immersive, futuristic interfaces with minimal setup."
-                      }
+                        text: "SC Timeline is a Tron-inspired theme and component library built on top of shadcn/ui. It provides 50+ pre-styled components, 6 Greek god color themes, 3D effects powered by Three.js, and HUD-style UI elements — all designed to create immersive, futuristic interfaces with minimal setup.",
+                      },
                     },
                     {
                       "@type": "Question",
-                      "name": "How do I install SC Timeline components?",
-                      "acceptedAnswer": {
+                      name: "How do I install SC Timeline components?",
+                      acceptedAnswer: {
                         "@type": "Answer",
-                        "text": "You can install components using the shadcn CLI. Run 'pnpm dlx shadcn@latest add @thegridcn/[component]' to add individual components, or use 'pnpm dlx shadcn@latest list @thegridcn' to browse all available components. Works with npm, yarn, and bun too."
-                      }
+                        text: "You can install components using the shadcn CLI. Run 'pnpm dlx shadcn@latest add @thegridcn/[component]' to add individual components, or use 'pnpm dlx shadcn@latest list @thegridcn' to browse all available components. Works with npm, yarn, and bun too.",
+                      },
                     },
                     {
                       "@type": "Question",
-                      "name": "Do I need shadcn/ui already set up?",
-                      "acceptedAnswer": {
+                      name: "Do I need shadcn/ui already set up?",
+                      acceptedAnswer: {
                         "@type": "Answer",
-                        "text": "Yes. SC Timeline extends shadcn/ui, so you need a project with shadcn/ui initialized. Run 'pnpm dlx shadcn@latest init' first if you don't have it. SC Timeline components integrate seamlessly with your existing shadcn/ui setup and Tailwind CSS configuration."
-                      }
+                        text: "Yes. SC Timeline extends shadcn/ui, so you need a project with shadcn/ui initialized. Run 'pnpm dlx shadcn@latest init' first if you don't have it. SC Timeline components integrate seamlessly with your existing shadcn/ui setup and Tailwind CSS configuration.",
+                      },
                     },
                     {
                       "@type": "Question",
-                      "name": "What themes are available?",
-                      "acceptedAnswer": {
+                      name: "What themes are available?",
+                      acceptedAnswer: {
                         "@type": "Answer",
-                        "text": "Six Greek god-inspired themes: Ares (red), Tron (cyan), Clu (orange), Athena (gold), Aphrodite (pink), and Poseidon (blue). Each theme uses oklch() color space for precise color control and includes matching glow effects, borders, and background tones."
-                      }
+                        text: "Six Greek god-inspired themes: Ares (red), Tron (cyan), Clu (orange), Athena (gold), Aphrodite (pink), and Poseidon (blue). Each theme uses oklch() color space for precise color control and includes matching glow effects, borders, and background tones.",
+                      },
                     },
                     {
                       "@type": "Question",
-                      "name": "Can I customize the themes or create my own?",
-                      "acceptedAnswer": {
+                      name: "Can I customize the themes or create my own?",
+                      acceptedAnswer: {
                         "@type": "Answer",
-                        "text": "Absolutely. Themes are defined as CSS variables using the oklch() color space, applied via a data-theme attribute. You can override any variable in your own CSS or create entirely new themes by defining a new set of color tokens following the same pattern."
-                      }
+                        text: "Absolutely. Themes are defined as CSS variables using the oklch() color space, applied via a data-theme attribute. You can override any variable in your own CSS or create entirely new themes by defining a new set of color tokens following the same pattern.",
+                      },
                     },
                     {
                       "@type": "Question",
-                      "name": "Do the 3D components affect performance?",
-                      "acceptedAnswer": {
+                      name: "Do the 3D components affect performance?",
+                      acceptedAnswer: {
                         "@type": "Answer",
-                        "text": "The 3D components (Grid3D, Tunnel, GodAvatar) use Three.js and are dynamically imported with ssr: false so they don't impact server-side rendering or initial bundle size. They only load on the client when needed. You can also use the intensity system to control the level of visual effects."
-                      }
+                        text: "The 3D components (Grid3D, Tunnel, GodAvatar) use Three.js and are dynamically imported with ssr: false so they don't impact server-side rendering or initial bundle size. They only load on the client when needed. You can also use the intensity system to control the level of visual effects.",
+                      },
                     },
                     {
                       "@type": "Question",
-                      "name": "Does it work with frameworks other than Next.js?",
-                      "acceptedAnswer": {
+                      name: "Does it work with frameworks other than Next.js?",
+                      acceptedAnswer: {
                         "@type": "Answer",
-                        "text": "SC Timeline components work with any React framework that supports shadcn/ui — including Next.js, Vite, Remix, and Astro. Since they're installed directly into your project as source code (not a dependency), you have full control and can adapt them to your stack."
-                      }
+                        text: "SC Timeline components work with any React framework that supports shadcn/ui — including Next.js, Vite, Remix, and Astro. Since they're installed directly into your project as source code (not a dependency), you have full control and can adapt them to your stack.",
+                      },
                     },
                     {
                       "@type": "Question",
-                      "name": "Is SC Timeline free to use?",
-                      "acceptedAnswer": {
+                      name: "Is SC Timeline free to use?",
+                      acceptedAnswer: {
                         "@type": "Answer",
-                        "text": "Yes, SC Timeline is completely free and open source. You can use it in personal and commercial projects. Components are added to your codebase as source files, giving you full ownership and the freedom to modify anything."
-                      }
-                    }
-                  ]
-                }
-              ]
-            })
+                        text: "Yes, SC Timeline is completely free and open source. You can use it in personal and commercial projects. Components are added to your codebase as source files, giving you full ownership and the freedom to modify anything.",
+                      },
+                    },
+                  ],
+                },
+              ],
+            }),
           }}
         />
       </head>
       <body className="antialiased">
-        <ThemeProvider>
-          {children}
-          <Toaster
-            position="bottom-right"
-            toastOptions={{
-              style: {
-                background: "var(--card)",
-                border: "1px solid var(--border)",
-                color: "var(--foreground)",
-              },
-            }}
-          />
-          <Analytics />
-        </ThemeProvider>
+        <AuthProvider>
+          <ThemeProvider>
+            {children}
+            <Toaster
+              position="bottom-right"
+              toastOptions={{
+                style: {
+                  background: "var(--card)",
+                  border: "1px solid var(--border)",
+                  color: "var(--foreground)",
+                },
+              }}
+            />
+            <Analytics />
+          </ThemeProvider>
+        </AuthProvider>
       </body>
     </html>
-  )
+  );
 }

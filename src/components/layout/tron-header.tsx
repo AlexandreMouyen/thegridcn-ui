@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { TheGridcnLogo } from "./thegridcn-logo";
+import { HeaderAuthSection } from "./header-auth-section";
 
 function XIcon({ className }: { className?: string }) {
   return (
@@ -105,10 +106,7 @@ export function TronHeader({ navItems }: TronHeaderProps) {
 
   const defaultNavItems: NavItem[] = [
     { href: "/", label: "HOME" },
-    { href: "/components", label: "COMPONENTS" },
-    { href: "/templates", label: "TEMPLATES" },
-    { href: "/game", label: "GAME" },
-    { href: "/login", label: "LOGIN" },
+    { href: "/timeline", label: "TIMELINE" },
   ];
 
   const items = navItems || defaultNavItems;
@@ -175,22 +173,12 @@ export function TronHeader({ navItems }: TronHeaderProps) {
               ))}
             </nav>
 
-            {/* Right section - Social & Actions */}
+            {/* Right section - Auth & Actions */}
             <div className="flex flex-1 items-center justify-end gap-3">
-              {/* GitHub Stars */}
+              {/* Auth: login button or user menu */}
               <div className="hidden sm:block">
-                <GitHubStars />
+                <HeaderAuthSection />
               </div>
-
-              {/* X (Twitter) Link */}
-              <a
-                href="https://x.com/educalvolpz"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center rounded border border-primary/30 bg-primary/5 px-2.5 py-1.5 transition-colors hover:border-primary/50 hover:bg-primary/10"
-              >
-                <XIcon className="h-4 w-4 text-primary" />
-              </a>
 
               {/* Mobile menu button */}
               <button
@@ -288,31 +276,12 @@ export function TronHeader({ navItems }: TronHeaderProps) {
           {/* Divider */}
           <div className="my-6 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
 
-          {/* Social Links */}
+          {/* Auth section */}
           <div className="flex flex-col gap-3">
             <span className="font-mono text-[10px] tracking-widest text-foreground">
-              EXTERNAL LINKS
+              ACCOUNT
             </span>
-
-            <a
-              href="https://github.com/educlopez/thegridcn-ui"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-3 rounded border border-primary/30 px-4 py-3 font-mono text-sm tracking-wider text-foreground transition-all hover:border-primary/50 hover:bg-primary/5 hover:text-primary"
-            >
-              <GitHubIcon className="h-5 w-5 text-primary" />
-              <span>GITHUB</span>
-            </a>
-
-            <a
-              href="https://x.com/educalvolpz"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-3 rounded border border-primary/30 px-4 py-3 font-mono text-sm tracking-wider text-foreground transition-all hover:border-primary/50 hover:bg-primary/5 hover:text-primary"
-            >
-              <XIcon className="h-5 w-5 text-primary" />
-              <span>X / TWITTER</span>
-            </a>
+            <HeaderAuthSection />
           </div>
 
           {/* Footer */}

@@ -1,7 +1,14 @@
+import { Suspense } from "react";
 import { LoginTemplate } from "@/components/thegridcn";
 
-const LoginPage = () => {
-  return <LoginTemplate />;
+export const metadata = {
+  title: "Sign In",
 };
 
-export default LoginPage;
+export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginTemplate />
+    </Suspense>
+  );
+}

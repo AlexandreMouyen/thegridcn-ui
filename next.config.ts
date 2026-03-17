@@ -18,7 +18,13 @@ const nextConfig: NextConfig = {
           },
         ],
       },
-    ]
+    ];
+  },
+  images: {
+    remotePatterns: [
+      { protocol: "https", hostname: "**.githubusercontent.com" },
+      { protocol: "https", hostname: "cdn.discordapp.com" },
+    ],
   },
 };
 
