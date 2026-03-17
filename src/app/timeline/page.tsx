@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import { TronHeader } from "@/components/layout";
 import { ScTimeline } from "./sc-timeline";
-import { GridScanOverlay } from "@/components/website/cinematic-hud";
-import { GridMap } from "@/components/website";
 
 export const metadata: Metadata = {
   title: "SC Lore Timeline | The Gridcn",

@@ -6,7 +6,7 @@ import Image from "next/image";
 import { LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { UserRoleBadge } from "./user-role-badge";
-import { UserRole } from "@/types/user";
+import { USER_ROLES, UserRole } from "@/types/user";
 
 export function HeaderAuthSection() {
   const { data: session, status } = useSession();
@@ -48,13 +48,17 @@ export function HeaderAuthSection() {
   }
 
   const user = session.user;
-  const primaryRole = (user.roles?.[0] ?? "USER") as UserRole;
-  const initials = (user.name ?? user.email ?? "U")
-    .split(" ")
-    .map((w) => w[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
+  const primaryRole = (user.roles?.[0] ?? USER_ROLES.VISITOR) as UserRole;
+  const displayName =
+    user.firstName && user.lastName
+      ? `${user.firstName} ${user.lastName}`
+      : (user.firstName ?? user.email ?? "USER");
+  const initials =
+    user.firstName && user.lastName
+      ? `${user.firstName[0]}${user.lastName[0]}`.toUpperCase()
+      : user.firstName
+        ? user.firstName.slice(0, 2).toUpperCase()
+        : (user.email ?? "U").slice(0, 2).toUpperCase();
 
   return (
     <div ref={dropdownRef} className="relative">
@@ -72,7 +76,7 @@ export function HeaderAuthSection() {
           {user.image ? (
             <Image
               src={user.image}
-              alt={user.name ?? "User"}
+              alt={displayName}
               fill
               className="object-cover"
             />
@@ -117,7 +121,7 @@ export function HeaderAuthSection() {
                 {user.image ? (
                   <Image
                     src={user.image}
-                    alt={user.name ?? "User"}
+                    alt={displayName}
                     fill
                     className="object-cover"
                   />
@@ -129,7 +133,7 @@ export function HeaderAuthSection() {
               </div>
               <div className="min-w-0 flex-1">
                 <div className="truncate font-mono text-[11px] font-bold tracking-wider text-foreground">
-                  {user.name ?? "USER"}
+                  {displayName}
                 </div>
                 <div className="truncate font-mono text-[9px] text-foreground/50">
                   {user.email}
@@ -137,7 +141,7 @@ export function HeaderAuthSection() {
               </div>
             </div>
             <div className="mt-2 flex flex-wrap gap-1">
-              {(user.roles ?? ["USER"]).map((role) => (
+              {(user.roles ?? [USER_ROLES.VISITOR]).map((role) => (
                 <UserRoleBadge key={role} role={role as UserRole} />
               ))}
             </div>

@@ -25,7 +25,7 @@ export default {
         const dbUser = await User.findOne<IUser>({ email: user.email });
 
         if (!dbUser) {
-          const [firstName, lastName] = user?.name?.split(" ") ?? [];
+          const [firstName, lastName] = user?.name?.split(" ") ?? "";
           const newUser = new User({
             ...user,
             firstName:
@@ -39,10 +39,28 @@ export default {
             image:
               (profile as Record<string, unknown>)?.avatar_url ??
               (profile as Record<string, unknown>)?.picture ??
+              (profile as Record<string, unknown>)?.image_url ??
               undefined,
             roles: [USER_ROLES.USER],
           });
           await newUser.save();
+        } else if (
+          !dbUser.image &&
+          ((profile as Record<string, unknown>)?.avatar_url ||
+            (profile as Record<string, unknown>)?.picture ||
+            (profile as Record<string, unknown>)?.image_url)
+        ) {
+          await User.updateOne(
+            { _id: dbUser._id },
+            {
+              $set: {
+                image:
+                  (profile as Record<string, unknown>)?.avatar_url ??
+                  (profile as Record<string, unknown>)?.picture ??
+                  (profile as Record<string, unknown>)?.image_url,
+              },
+            },
+          );
         }
 
         return true;
@@ -53,18 +71,16 @@ export default {
     },
     async jwt({ token, user }) {
       if (user) {
-        await dbConnect();
-        const dbUser = await User.findOne({ email: user.email }).lean<IUser>();
-        if (dbUser) {
-          token.roles = dbUser.roles.map(String);
-        }
+        token.roles = user.roles;
+        token.firstName = user.firstName;
+        token.lastName = user.lastName;
       }
       return token;
     },
     async session({ session, token }) {
-      if (token.roles) {
-        session.user.roles = token.roles as string[];
-      }
+      session.user.roles = token.roles;
+      session.user.firstName = token.firstName;
+      session.user.lastName = token.lastName;
       return session;
     },
   },

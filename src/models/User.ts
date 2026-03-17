@@ -1,4 +1,4 @@
-import { USER_ROLES } from "@/types/user";
+import { IUser, USER_ROLES } from "@/types/user";
 import mongoose, { Model } from "mongoose";
 
 export const UserSchema = new mongoose.Schema(
@@ -10,14 +10,14 @@ export const UserSchema = new mongoose.Schema(
       type: [String],
       required: true,
       enum: Object.values(USER_ROLES),
-      default: [USER_ROLES.USER],
+      default: [USER_ROLES.VISITOR],
     },
     image: { type: String },
   },
   { timestamps: true },
 );
 
-interface IUserModel extends Model<unknown> {}
+type IUserModel = Model<IUser>;
 
 export default (mongoose.models.User as IUserModel) ||
-  mongoose.model("User", UserSchema);
+  mongoose.model<IUser>("User", UserSchema);
