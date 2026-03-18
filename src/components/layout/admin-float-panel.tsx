@@ -4,19 +4,37 @@ import { useState } from "react";
 import { Link, usePathname } from "@/i18n/navigation";
 import type { ComponentProps } from "react";
 import { useSession } from "next-auth/react";
-import { Clock, Shield, ChevronRight, ChevronLeft } from "lucide-react";
+import {
+  Clock,
+  Shield,
+  ChevronRight,
+  ChevronLeft,
+  BookOpen,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { USER_ROLES } from "@/types/user";
+import { useTranslations } from "next-intl";
 
-const ADMIN_NAV = [
+const ADMIN_NAV_CONFIG = [
   {
-    label: "Timeline",
+    labelKey: "nav.timeline" as const,
     items: [
       {
         href: "/admin/timeline/eras",
-        label: "Eras",
+        labelKey: "nav.eras" as const,
         icon: <Clock className="h-3.5 w-3.5" />,
         matchPrefix: "/admin/timeline",
+      },
+    ],
+  },
+  {
+    labelKey: "nav.lore" as const,
+    items: [
+      {
+        href: "/admin/glossary",
+        labelKey: "nav.glossary" as const,
+        icon: <BookOpen className="h-3.5 w-3.5" />,
+        matchPrefix: "/admin/glossary",
       },
     ],
   },
@@ -26,6 +44,11 @@ export function AdminFloatPanel() {
   const { data: session, status } = useSession();
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const t = useTranslations("admin");
+  const ADMIN_NAV = ADMIN_NAV_CONFIG.map((group) => ({
+    label: t(group.labelKey),
+    items: group.items.map((item) => ({ ...item, label: t(item.labelKey) })),
+  }));
 
   if (status === "loading" || !session) return null;
 

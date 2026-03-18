@@ -5,6 +5,7 @@
 import { IUser } from "@/types/user";
 import { IEra, IEvent } from "@/types/timeline";
 import { JWT } from "next-auth/jwt";
+import { IGlossaryTerm } from "@/types/glossary";
 
 export type Permissions = {
   eras: {
@@ -17,6 +18,10 @@ export type Permissions = {
   };
   users: {
     dataType: IUser;
+    action: "view" | "create" | "edit" | "delete";
+  };
+  glossaryterms: {
+    dataType: IGlossaryTerm;
     action: "view" | "create" | "edit" | "delete";
   };
 };

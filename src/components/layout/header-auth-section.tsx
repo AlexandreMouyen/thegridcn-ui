@@ -5,7 +5,7 @@ import { useSession, signOut } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LogOut, Clock, Shield } from "lucide-react";
+import { LogOut, Clock, Shield, BookOpen } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { UserRoleBadge } from "./user-role-badge";
 import { USER_ROLES, UserRole } from "@/types/user";
@@ -174,6 +174,14 @@ export function HeaderAuthSection() {
                 >
                   <Clock className="h-3.5 w-3.5" />
                   TIMELINE ERAS
+                </Link>
+                <Link
+                  href="/admin/glossary"
+                  onClick={() => setOpen(false)}
+                  className="flex w-full items-center gap-3 px-4 py-2 font-mono text-xs tracking-wider text-foreground/70 transition-colors hover:bg-primary/5 hover:text-primary"
+                >
+                  <BookOpen className="h-3.5 w-3.5" />
+                  GLOSSARY
                 </Link>
                 <div className="mx-4 my-1 h-px bg-primary/10" />
               </>

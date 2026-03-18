@@ -225,5 +225,17 @@
     "back": "Retour",
     "next": "Suivant",
     "previous": "Précédent"
+  },
+  "glossary": {
+    "loading": "Chargement…",
+    "notFound": "Terme introuvable"
+  },
+  "admin": {
+    "nav": {
+      "timeline": "Chronologie",
+      "eras": "Ères",
+      "lore": "Lore",
+      "glossary": "Glossaire"
+    }
   }
 }

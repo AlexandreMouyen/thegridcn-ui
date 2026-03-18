@@ -228,6 +228,18 @@ declare const messages: {
     "back": "Back",
     "next": "Next",
     "previous": "Previous"
+  },
+  "glossary": {
+    "loading": "Loading…",
+    "notFound": "Term not found"
+  },
+  "admin": {
+    "nav": {
+      "timeline": "Timeline",
+      "eras": "Eras",
+      "lore": "Lore",
+      "glossary": "Glossary"
+    }
   }
 };
 export default messages;
