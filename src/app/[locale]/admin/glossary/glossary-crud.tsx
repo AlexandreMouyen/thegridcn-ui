@@ -42,7 +42,10 @@ import {
   type IGlossaryTerm,
   type GlossaryTag,
 } from "@/types/glossary";
-import { GlossaryContent } from "@/components/ui/glossary";
+import {
+  GlossaryContent,
+  invalidateGlossaryCache,
+} from "@/components/ui/glossary";
 
 // ── Tag options & colors ──────────────────────────────────────────────────────
 
@@ -278,6 +281,7 @@ export function GlossaryCrud() {
       }
 
       await mutate();
+      invalidateGlossaryCache(isCreate ? form.slug.trim() : editingSlug!);
       toast.success(
         isCreate ? "Glossary term created" : "Glossary term updated",
       );

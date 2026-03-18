@@ -10,6 +10,7 @@ import { selectableThemes, useTheme } from "@/components/theme";
 import { GridScanOverlay, UplinkHeader } from "@/components/thegridcn";
 import { type IEra, type IEvent, type LocalizedString } from "@/types/timeline";
 import { GridMap } from "@/components/website";
+import { RichContent } from "@/components/ui/glossary";
 
 const GodAvatar3D = dynamic(
   () => import("@/components/website/god-avatar").then((m) => m.GodAvatar3D),
@@ -300,10 +301,9 @@ function TimelineCard({
               <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-14 bg-gradient-to-t from-card/90 to-transparent" />
             )}
 
-            {/* Content HTML — static trusted developer data, no XSS risk */}
-            <div
+            <RichContent
+              html={t(event.content, locale)}
               className="[&>p]:mb-3 [&>p:last-child]:mb-0 [&_strong]:text-foreground/90 [&_em]:text-primary/80 [&_em]:not-italic [&_em]:font-medium"
-              dangerouslySetInnerHTML={{ __html: t(event.content, locale) }}
             />
           </div>
 
