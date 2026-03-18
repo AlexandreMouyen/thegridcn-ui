@@ -1,18 +1,14 @@
-import { NextRequest, NextResponse } from "next/server";
-import dbConnect from "@/lib/dbConnect";
+import { NextRequest } from "next/server";
 import EraModel from "@/models/ScEra";
 
-export async function GET(_req: NextRequest) {
-  try {
-    await dbConnect();
-    const eras = await EraModel.find({}).sort({ startYear: 1 }).lean();
-    return NextResponse.json({ eras });
-  } catch (err) {
-    console.error("[timeline/eras] GET error:", err);
-    return NextResponse.json(
-      { error: "Failed to fetch eras" },
-      { status: 500 },
-    );
-  }
+/**
+ * GET /api/timeline/eras
+ *
+ * Supports all api-query-params filters plus:
+ *   ?locale=fr        — reduce LocalizedString fields to a single locale
+ *   ?sort=startYear   — sort by any field
+ *   ?limit=20&skip=0  — pagination (X-Total-Count / X-Has-More headers)
+ */
+export async function GET(req: NextRequest) {
+  return EraModel.withAqp(req);
 }
-

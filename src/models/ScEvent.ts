@@ -1,5 +1,14 @@
-import mongoose from "mongoose";
+import mongoose, { Model } from "mongoose";
+import { NextRequest } from "next/server";
 import { IEvent, EVENT_TAGS, EVENT_SIGNIFICANCE } from "@/types/timeline";
+import { withAqp, AqpOptions } from "@/lib/mongoose";
+
+interface IEventModel extends Model<IEvent> {
+  withAqp(
+    req: NextRequest,
+    options?: AqpOptions,
+  ): ReturnType<typeof withAqp<IEvent>>;
+}
 
 const LocalizedStringSchema = { type: Map, of: String, required: true };
 
@@ -34,7 +43,7 @@ const EventSchema = new mongoose.Schema<IEvent>(
   { timestamps: true },
 );
 
-type IEventModel = mongoose.Model<IEvent>;
+EventSchema.static("withAqp", withAqp);
 
 export default (mongoose.models.Event as IEventModel) ||
-  mongoose.model<IEvent>("Event", EventSchema);
+  mongoose.model<IEvent, IEventModel>("Event", EventSchema);

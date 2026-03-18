@@ -1,24 +1,15 @@
-import { NextRequest, NextResponse } from "next/server";
-import dbConnect from "@/lib/dbConnect";
+import { NextRequest } from "next/server";
 import EventModel from "@/models/ScEvent";
 
+/**
+ * GET /api/timeline/events
+ *
+ * Supports all api-query-params filters plus:
+ *   ?locale=fr           — reduce LocalizedString fields to a single locale
+ *   ?eraSlug=age-of-sail — filter by era (forwarded straight to MongoDB)
+ *   ?sort=order          — sort by any field
+ *   ?limit=20&skip=0     — pagination (X-Total-Count / X-Has-More headers)
+ */
 export async function GET(req: NextRequest) {
-  try {
-    await dbConnect();
-
-    const eraSlug = req.nextUrl.searchParams.get("eraSlug");
-    const filter = eraSlug ? { eraSlug } : {};
-
-    const events = await EventModel.find(filter)
-      .sort({ eraSlug: 1, order: 1 })
-      .lean();
-
-    return NextResponse.json({ events });
-  } catch (err) {
-    console.error("[timeline/events] GET error:", err);
-    return NextResponse.json(
-      { error: "Failed to fetch events" },
-      { status: 500 },
-    );
-  }
+  return EventModel.withAqp(req);
 }
