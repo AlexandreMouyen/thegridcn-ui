@@ -13,7 +13,6 @@ const EraSchema = new mongoose.Schema<IEra>(
     startYear: { type: Number, required: true },
     endYear: { type: Number, default: null },
     description: LocalizedStringSchema,
-    order: { type: Number, required: true },
   },
   { timestamps: true },
 );

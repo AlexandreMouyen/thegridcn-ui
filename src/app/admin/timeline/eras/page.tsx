@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 
 export default async function ErasAdminPage() {
   await dbConnect();
-  const eras = await EraModel.find({}).sort({ order: 1 }).lean<IEra[]>();
+  const eras = await EraModel.find({}).sort({ startYear: 1 }).lean<IEra[]>();
   // Serialize ObjectIds and Mongoose Maps to plain JSON for client props
   const serialized = JSON.parse(JSON.stringify(eras)) as IEra[];
 

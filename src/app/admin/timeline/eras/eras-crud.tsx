@@ -49,7 +49,6 @@ interface EraFormData {
   endYear: string;
   description_en: string;
   description_fr: string;
-  order: string;
 }
 
 const EMPTY_FORM: EraFormData = {
@@ -62,7 +61,6 @@ const EMPTY_FORM: EraFormData = {
   endYear: "",
   description_en: "",
   description_fr: "",
-  order: "",
 };
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -84,7 +82,6 @@ function eraToForm(era: IEra): EraFormData {
     endYear: era.endYear != null ? String(era.endYear) : "",
     description_en: lget(era.description, "en"),
     description_fr: lget(era.description, "fr"),
-    order: String(era.order),
   };
 }
 
@@ -107,7 +104,6 @@ function formToPayload(form: EraFormData) {
     startYear: Number(form.startYear),
     endYear: form.endYear.trim() ? Number(form.endYear) : null,
     description,
-    order: Number(form.order),
   };
 }
 
@@ -124,8 +120,6 @@ function validate(form: EraFormData, isCreate: boolean): string | null {
     return "Start year must be a valid number";
   if (form.endYear.trim() && isNaN(Number(form.endYear)))
     return "End year must be a valid number";
-  if (!form.order.trim() || isNaN(Number(form.order)))
-    return "Order must be a valid number";
   return null;
 }
 
@@ -167,7 +161,7 @@ export function ErasCrud({ initialEras }: ErasCrudProps) {
 
   function openCreate() {
     setEditingSlug(null);
-    setForm({ ...EMPTY_FORM, order: String(eras.length + 1) });
+    setForm(EMPTY_FORM);
     setFormLocale("en");
     setFormOpen(true);
   }
@@ -213,7 +207,7 @@ export function ErasCrud({ initialEras }: ErasCrudProps) {
         (isCreate
           ? [...prev, saved]
           : prev.map((e) => (e.slug === editingSlug ? saved : e))
-        ).sort((a, b) => a.order - b.order),
+        ).sort((a, b) => a.startYear - b.startYear),
       );
       toast.success(isCreate ? "Era created" : "Era updated");
       setFormOpen(false);
@@ -246,7 +240,7 @@ export function ErasCrud({ initialEras }: ErasCrudProps) {
   const minYear = eras.length
     ? Math.min(...eras.map((e) => e.startYear))
     : null;
-  const maxYear = eras.some((e) => !e.endYear)
+  const maxYear = eras.some((e) => e.endYear == null)
     ? "Present"
     : eras.length
       ? Math.max(...eras.map((e) => e.endYear ?? 0)) + " SE"
@@ -366,7 +360,7 @@ export function ErasCrud({ initialEras }: ErasCrudProps) {
                   )}
                 >
                   <span className="font-mono text-xs text-foreground/35">
-                    {era.order.toString().padStart(2, "0")}
+                    {(i + 1).toString().padStart(2, "0")}
                   </span>
 
                   <span className="font-mono text-xs text-primary/75 truncate">
@@ -379,7 +373,9 @@ export function ErasCrud({ initialEras }: ErasCrudProps) {
 
                   <span className="font-mono text-[11px] text-foreground/45 whitespace-nowrap">
                     {era.startYear} SE
-                    {era.endYear ? ` – ${era.endYear} SE` : " – Present"}
+                    {era.endYear != null
+                      ? ` – ${era.endYear} SE`
+                      : " – Present"}
                   </span>
 
                   <span className="font-mono text-[11px] text-foreground/45 truncate uppercase">
@@ -436,29 +432,16 @@ export function ErasCrud({ initialEras }: ErasCrudProps) {
 
             {/* Scrollable form body */}
             <div className="flex-1 overflow-y-auto py-4 space-y-5 pr-1">
-              {/* Slug + Order */}
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <TextInput
-                    label={isCreate ? "Slug *" : "Slug (immutable)"}
-                    value={form.slug}
-                    onChange={(e) => setField("slug", e.target.value)}
-                    placeholder="age-of-exploration"
-                    disabled={!isCreate}
-                    hint="Lowercase kebab-case only"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <NumberInput
-                    label="Order *"
-                    value={Number(form.order) || 1}
-                    min={1}
-                    onChange={(v) => setField("order", String(v))}
-                  />
-                  <p className="font-mono text-[9px] text-foreground/30">
-                    Ascending sort order
-                  </p>
-                </div>
+              {/* Slug */}
+              <div>
+                <TextInput
+                  label={isCreate ? "Slug *" : "Slug (immutable)"}
+                  value={form.slug}
+                  onChange={(e) => setField("slug", e.target.value)}
+                  placeholder="age-of-exploration"
+                  disabled={!isCreate}
+                  hint="Lowercase kebab-case only"
+                />
               </div>
 
               {/* Year range */}

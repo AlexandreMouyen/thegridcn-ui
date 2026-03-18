@@ -24,7 +24,7 @@ export async function PUT(req: NextRequest, { params }: Params) {
     await dbConnect();
     const { slug } = await params;
     const body = await req.json();
-    const { name, shortName, startYear, endYear, description, order } = body;
+    const { name, shortName, startYear, endYear, description } = body;
 
     if (!name?.en || !shortName?.en || !description?.en) {
       return NextResponse.json(
@@ -32,9 +32,9 @@ export async function PUT(req: NextRequest, { params }: Params) {
         { status: 400 },
       );
     }
-    if (startYear == null || order == null) {
+    if (startYear == null) {
       return NextResponse.json(
-        { error: "startYear and order are required" },
+        { error: "startYear is required" },
         { status: 400 },
       );
     }
@@ -48,7 +48,6 @@ export async function PUT(req: NextRequest, { params }: Params) {
           startYear: Number(startYear),
           endYear: endYear != null && endYear !== "" ? Number(endYear) : null,
           description,
-          order: Number(order),
         },
       },
       { new: true },

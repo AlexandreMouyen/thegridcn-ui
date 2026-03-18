@@ -5,7 +5,7 @@ import EraModel from "@/models/ScEra";
 export async function GET(_req: NextRequest) {
   try {
     await dbConnect();
-    const eras = await EraModel.find({}).sort({ order: 1 }).lean();
+    const eras = await EraModel.find({}).sort({ startYear: 1 }).lean();
     return NextResponse.json({ eras });
   } catch (err) {
     console.error("[timeline/eras] GET error:", err);
@@ -20,8 +20,7 @@ export async function POST(req: NextRequest) {
   try {
     await dbConnect();
     const body = await req.json();
-    const { slug, name, shortName, startYear, endYear, description, order } =
-      body;
+    const { slug, name, shortName, startYear, endYear, description } = body;
 
     if (!slug || typeof slug !== "string") {
       return NextResponse.json({ error: "slug is required" }, { status: 400 });
@@ -38,9 +37,9 @@ export async function POST(req: NextRequest) {
         { status: 400 },
       );
     }
-    if (startYear == null || order == null) {
+    if (startYear == null) {
       return NextResponse.json(
-        { error: "startYear and order are required" },
+        { error: "startYear is required" },
         { status: 400 },
       );
     }
@@ -52,7 +51,6 @@ export async function POST(req: NextRequest) {
       startYear: Number(startYear),
       endYear: endYear != null && endYear !== "" ? Number(endYear) : null,
       description,
-      order: Number(order),
     });
 
     return NextResponse.json({ era }, { status: 201 });

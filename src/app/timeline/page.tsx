@@ -38,7 +38,7 @@ export default async function TimelinePage() {
     EventModel.find({}).lean<IEvent[]>(),
   ]);
 
-  const eraOrderMap = new Map(eras.map((era) => [era.slug, era.order ?? 0]));
+  const eraOrderMap = new Map(eras.map((era, index) => [era.slug, index]));
   const events = [...rawEvents].sort((a, b) => {
     const eraA = eraOrderMap.get(a.eraSlug) ?? 999;
     const eraB = eraOrderMap.get(b.eraSlug) ?? 999;

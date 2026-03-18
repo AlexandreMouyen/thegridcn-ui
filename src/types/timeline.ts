@@ -47,8 +47,6 @@ export interface IEra {
   startYear: number;
   endYear: number | null;
   description: LocalizedString;
-  /** Visual ordering in the timeline (0-indexed). */
-  order: number;
   createdAt?: Date;
   updatedAt?: Date;
 }
