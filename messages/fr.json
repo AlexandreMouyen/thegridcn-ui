@@ -234,6 +234,7 @@
     "nav": {
       "timeline": "Chronologie",
       "eras": "Ères",
+      "events": "Événements",
       "lore": "Lore",
       "glossary": "Glossaire"
     }

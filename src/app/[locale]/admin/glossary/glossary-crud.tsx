@@ -13,27 +13,16 @@ import {
   Eye,
   EyeOff,
 } from "lucide-react";
-import { TextInput, SearchInput, Select } from "@/components/thegridcn";
+import {
+  TextInput,
+  SearchInput,
+  Select,
+  Modal,
+  ModalButton,
+} from "@/components/thegridcn";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { Checkbox } from "@/components/ui/checkbox";
 import { TagsCombobox } from "@/components/ui/tags-combobox";
 import { cn } from "@/lib/utils";
 import { fetcher, FetchedData } from "@/lib/fetcher";
@@ -527,148 +516,37 @@ export function GlossaryCrud() {
         </div>
       </div>
 
-      {/* ── Create / Edit Dialog ─────────────────────────────────────────────── */}
-      <Dialog open={formOpen} onOpenChange={setFormOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="font-orbitron tracking-widest text-sm uppercase">
-              {isCreate ? "New Glossary Term" : `Edit — ${editingSlug}`}
-            </DialogTitle>
-            <DialogDescription className="font-rajdhani text-xs text-foreground/40">
-              {isCreate
-                ? "Add a new term to the lore glossary."
-                : "Update an existing glossary term."}
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="space-y-5 pt-2">
-            {/* Slug (create only) */}
-            {isCreate && (
-              <div>
-                <FieldLabel>Slug *</FieldLabel>
-                <TextInput
-                  value={form.slug}
-                  onChange={(e) => setField("slug", e.target.value)}
-                  placeholder="hades-system"
-                />
-                <p className="font-mono text-[9px] text-foreground/30 mt-1">
-                  Lowercase kebab-case. Used in {"{glossary:slug|Display}"}
-                </p>
-              </div>
-            )}
-
-            {/* Tags */}
-            <div>
-              <FieldLabel>Tags</FieldLabel>
-              <TagsCombobox
-                options={TAG_OPTIONS}
-                value={form.tags}
-                onChange={(tags) => setField("tags", tags as GlossaryTag[])}
-                placeholder="Select tags…"
-              />
-            </div>
-
-            {/* Locale tab switcher */}
-            <div className="flex gap-1 border-b border-border/30 pb-0">
-              {LOCALES.map(({ code, label }) => (
-                <button
-                  key={code}
-                  onClick={() => setFormLocale(code)}
-                  className={cn(
-                    "font-mono text-[10px] uppercase tracking-widest px-3 py-1.5 border-b-2 transition-colors -mb-px",
-                    formLocale === code
-                      ? "border-primary text-primary"
-                      : "border-transparent text-foreground/40 hover:text-foreground/70",
-                  )}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
-
-            {/* Term name */}
-            <div key={`term-${formLocale}`}>
-              <FieldLabel>
-                Term ({formLocale.toUpperCase()})
-                {formLocale === "en" ? " *" : ""}
-              </FieldLabel>
-              <TextInput
-                value={form[currentTermField]}
-                onChange={(e) => setField(currentTermField, e.target.value)}
-                placeholder={
-                  formLocale === "en" ? "Hades System" : "Système Hadès"
-                }
-              />
-            </div>
-
-            {/* Definition with preview toggle */}
-            <div key={`def-${formLocale}`}>
-              <div className="flex items-center justify-between mb-2">
-                <FieldLabel>
-                  Definition ({formLocale.toUpperCase()})
-                  {formLocale === "en" ? " *" : ""}
-                </FieldLabel>
-                <button
-                  onClick={() => setPreviewDef((v) => !v)}
-                  className="flex items-center gap-1 font-mono text-[9px] uppercase tracking-widest text-foreground/40 hover:text-primary transition-colors"
-                >
-                  {previewDef ? (
-                    <>
-                      <EyeOff className="h-3 w-3" /> Edit
-                    </>
-                  ) : (
-                    <>
-                      <Eye className="h-3 w-3" /> Preview
-                    </>
-                  )}
-                </button>
-              </div>
-
-              {previewDef ? (
-                <div className="rounded border border-border/40 bg-card/40 px-3 py-2 font-rajdhani text-sm text-foreground/80 min-h-[80px]">
-                  {currentDefValue ? (
-                    <GlossaryContent text={currentDefValue} />
-                  ) : (
-                    <span className="text-foreground/30 italic">
-                      No definition yet…
-                    </span>
-                  )}
-                </div>
-              ) : (
-                <Textarea
-                  value={currentDefValue}
-                  onChange={(e) => setField(currentDefField, e.target.value)}
-                  placeholder={`A star system in the Hades constellation… Use {glossary:slug|Text} to link other terms.`}
-                  className="font-rajdhani text-sm min-h-[80px]"
-                />
-              )}
-              <p className="font-mono text-[9px] text-foreground/30 mt-1">
-                Supports{" "}
-                <code className="text-primary/60">
-                  {"{glossary:slug|Display Text}"}
-                </code>{" "}
-                to link nested terms.
-              </p>
-            </div>
-          </div>
-
-          <DialogFooter className="pt-4">
-            <Button
-              variant="outline"
+      {/* ── Create / Edit Modal ──────────────────────────────────────────────── */}
+      <Modal
+        open={formOpen}
+        onClose={() => {
+          if (!saving) setFormOpen(false);
+        }}
+        title={isCreate ? "New Glossary Term" : `Edit — ${editingSlug}`}
+        description={
+          isCreate
+            ? "Add a new term to the lore glossary."
+            : "Update an existing glossary term."
+        }
+        size="lg"
+        className="max-w-3xl"
+        footer={
+          <>
+            <ModalButton
+              variant="default"
               onClick={() => setFormOpen(false)}
               disabled={saving}
-              className="font-mono text-[10px] uppercase tracking-widest"
             >
               Cancel
-            </Button>
-            <Button
+            </ModalButton>
+            <ModalButton
+              variant="primary"
               onClick={handleSave}
               disabled={saving}
-              className="font-mono text-[10px] uppercase tracking-widest"
             >
               {saving ? (
                 <>
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" />
                   Saving…
                 </>
               ) : isCreate ? (
@@ -676,49 +554,170 @@ export function GlossaryCrud() {
               ) : (
                 "Save Changes"
               )}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+            </ModalButton>
+          </>
+        }
+      >
+        <div className="overflow-y-auto max-h-[60vh] space-y-5 pt-2">
+          {/* Slug (create only) */}
+          {isCreate && (
+            <div>
+              <FieldLabel>Slug *</FieldLabel>
+              <TextInput
+                value={form.slug}
+                onChange={(e) => setField("slug", e.target.value)}
+                placeholder="hades-system"
+              />
+              <p className="font-mono text-[9px] text-foreground/30 mt-1">
+                Lowercase kebab-case. Used in {"{glossary:slug|Display}"}
+              </p>
+            </div>
+          )}
+
+          {/* Tags */}
+          <div>
+            <FieldLabel>Tags</FieldLabel>
+            <div className="grid grid-cols-3 gap-y-2.5 gap-x-3">
+              {Object.values(GLOSSARY_TAGS).map((tag) => (
+                <label
+                  key={tag}
+                  className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-foreground/55 cursor-pointer select-none"
+                >
+                  <Checkbox
+                    checked={form.tags.includes(tag)}
+                    onCheckedChange={() =>
+                      setField(
+                        "tags",
+                        form.tags.includes(tag)
+                          ? form.tags.filter((t) => t !== tag)
+                          : ([...form.tags, tag] as GlossaryTag[]),
+                      )
+                    }
+                    className="h-3.5 w-3.5 shrink-0"
+                  />
+                  {tag}
+                </label>
+              ))}
+            </div>
+          </div>
+
+          {/* Locale tab switcher */}
+          <div className="flex gap-1 border-b border-border/30 pb-0">
+            {LOCALES.map(({ code, label }) => (
+              <button
+                key={code}
+                onClick={() => setFormLocale(code)}
+                className={cn(
+                  "font-mono text-[10px] uppercase tracking-widest px-3 py-1.5 border-b-2 transition-colors -mb-px",
+                  formLocale === code
+                    ? "border-primary text-primary"
+                    : "border-transparent text-foreground/40 hover:text-foreground/70",
+                )}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+
+          {/* Term name */}
+          <div key={`term-${formLocale}`}>
+            <FieldLabel>
+              Term ({formLocale.toUpperCase()}){formLocale === "en" ? " *" : ""}
+            </FieldLabel>
+            <TextInput
+              value={form[currentTermField]}
+              onChange={(e) => setField(currentTermField, e.target.value)}
+              placeholder={
+                formLocale === "en" ? "Hades System" : "Système Hadès"
+              }
+            />
+          </div>
+
+          {/* Definition with preview toggle */}
+          <div key={`def-${formLocale}`}>
+            <div className="flex items-center justify-between mb-2">
+              <FieldLabel>
+                Definition ({formLocale.toUpperCase()})
+                {formLocale === "en" ? " *" : ""}
+              </FieldLabel>
+              <button
+                onClick={() => setPreviewDef((v) => !v)}
+                className="flex items-center gap-1 font-mono text-[9px] uppercase tracking-widest text-foreground/40 hover:text-primary transition-colors"
+              >
+                {previewDef ? (
+                  <>
+                    <EyeOff className="h-3 w-3" /> Edit
+                  </>
+                ) : (
+                  <>
+                    <Eye className="h-3 w-3" /> Preview
+                  </>
+                )}
+              </button>
+            </div>
+
+            {previewDef ? (
+              <div className="rounded border border-border/40 bg-card/40 px-3 py-2 font-rajdhani text-sm text-foreground/80 min-h-[80px]">
+                {currentDefValue ? (
+                  <GlossaryContent text={currentDefValue} />
+                ) : (
+                  <span className="text-foreground/30 italic">
+                    No definition yet…
+                  </span>
+                )}
+              </div>
+            ) : (
+              <Textarea
+                value={currentDefValue}
+                onChange={(e) => setField(currentDefField, e.target.value)}
+                placeholder={`A star system in the Hades constellation… Use {glossary:slug|Text} to link other terms.`}
+                className="font-rajdhani text-sm min-h-[80px]"
+              />
+            )}
+            <p className="font-mono text-[9px] text-foreground/30 mt-1">
+              Supports{" "}
+              <code className="text-primary/60">
+                {"{glossary:slug|Display Text}"}
+              </code>{" "}
+              to link nested terms.
+            </p>
+          </div>
+        </div>
+      </Modal>
 
       {/* ── Delete confirmation ──────────────────────────────────────────────── */}
-      <AlertDialog
+      <Modal
         open={deleteSlug !== null}
-        onOpenChange={(open) => {
-          if (!open) setDeleteSlug(null);
-        }}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle className="font-orbitron text-sm uppercase tracking-widest">
-              Delete Term
-            </AlertDialogTitle>
-            <AlertDialogDescription className="font-rajdhani text-sm text-foreground/60">
-              Permanently delete{" "}
-              <span className="font-mono text-foreground/90">{deleteSlug}</span>
-              ? Any content using{" "}
-              <code className="font-mono text-xs text-primary/70">
-                {`{glossary:${deleteSlug}|…}`}
-              </code>{" "}
-              will render as plain text.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setDeleteSlug(null)}>
+        onClose={() => setDeleteSlug(null)}
+        title="Delete Term"
+        size="sm"
+        footer={
+          <>
+            <ModalButton variant="default" onClick={() => setDeleteSlug(null)}>
               Cancel
-            </AlertDialogCancel>
-            <AlertDialogAction
+            </ModalButton>
+            <ModalButton
+              variant="danger"
               onClick={() => {
                 handleDelete();
                 setDeleteSlug(null);
               }}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+            </ModalButton>
+          </>
+        }
+      >
+        <p className="font-rajdhani text-sm text-foreground/60">
+          Permanently delete{" "}
+          <span className="font-mono text-foreground/90">{deleteSlug}</span>?
+          Any content using{" "}
+          <code className="font-mono text-xs text-primary/70">
+            {`{glossary:${deleteSlug}|…}`}
+          </code>{" "}
+          will render as plain text.
+        </p>
+      </Modal>
     </div>
   );
 }

@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useFormatter, useLocale } from "next-intl";
 import useSWR from "swr";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, Loader2, Layers } from "lucide-react";
+import { Plus, Pencil, Trash2, Loader2, CalendarDays } from "lucide-react";
 import {
   NumberInput,
   TextInput,
@@ -18,32 +18,42 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 import { fetcher, FetchedData } from "@/lib/fetcher";
-import type { IEra, LocalizedEra } from "@/types/timeline";
+import type {
+  IEvent,
+  LocalizedEvent,
+  LocalizedEra,
+  EventSignificance,
+} from "@/types/timeline";
+import { EVENT_TAGS, EVENT_SIGNIFICANCE } from "@/types/timeline";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
-interface EraFormData {
+interface EventFormData {
   slug: string;
-  name_en: string;
-  name_fr: string;
-  shortName_en: string;
-  shortName_fr: string;
-  startYear: string;
-  endYear: string;
-  description_en: string;
-  description_fr: string;
+  title_en: string;
+  title_fr: string;
+  content_en: string;
+  content_fr: string;
+  date_year: string;
+  date_month: string;
+  date_day: string;
+  eraSlug: string;
+  tags: string[];
+  significance: string;
 }
 
-const EMPTY_FORM: EraFormData = {
+const EMPTY_FORM: EventFormData = {
   slug: "",
-  name_en: "",
-  name_fr: "",
-  shortName_en: "",
-  shortName_fr: "",
-  startYear: "",
-  endYear: "",
-  description_en: "",
-  description_fr: "",
+  title_en: "",
+  title_fr: "",
+  content_en: "",
+  content_fr: "",
+  date_year: "",
+  date_month: "",
+  date_day: "",
+  eraSlug: "",
+  tags: [],
+  significance: EVENT_SIGNIFICANCE.STANDARD,
 };
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -58,59 +68,61 @@ function lget(val: unknown, locale: string): string {
   return localized[locale] ?? localized.en ?? Object.values(localized)[0] ?? "";
 }
 
-function eraToForm(era: IEra): EraFormData {
+function eventToForm(event: IEvent): EventFormData {
   return {
-    slug: era.slug,
-    name_en: lget(era.name, "en"),
-    name_fr: lget(era.name, "fr"),
-    shortName_en: lget(era.shortName, "en"),
-    shortName_fr: lget(era.shortName, "fr"),
-    startYear: String(era.startYear),
-    endYear: era.endYear != null ? String(era.endYear) : "",
-    description_en: lget(era.description, "en"),
-    description_fr: lget(era.description, "fr"),
+    slug: event.slug,
+    title_en: lget(event.title, "en"),
+    title_fr: lget(event.title, "fr"),
+    content_en: lget(event.content, "en"),
+    content_fr: lget(event.content, "fr"),
+    date_year: String(event.date.year),
+    date_month: event.date.month != null ? String(event.date.month) : "",
+    date_day: event.date.day != null ? String(event.date.day) : "",
+    eraSlug: event.eraSlug,
+    tags: event.tags ?? [],
+    significance: event.significance ?? EVENT_SIGNIFICANCE.STANDARD,
   };
 }
 
-function formToPayload(form: EraFormData) {
-  const name: Record<string, string> = { en: form.name_en.trim() };
-  if (form.name_fr.trim()) name.fr = form.name_fr.trim();
+function formToPayload(form: EventFormData) {
+  const title: Record<string, string> = { en: form.title_en.trim() };
+  if (form.title_fr.trim()) title.fr = form.title_fr.trim();
 
-  const shortName: Record<string, string> = { en: form.shortName_en.trim() };
-  if (form.shortName_fr.trim()) shortName.fr = form.shortName_fr.trim();
+  const content: Record<string, string> = { en: form.content_en.trim() };
+  if (form.content_fr.trim()) content.fr = form.content_fr.trim();
 
-  const description: Record<string, string> = {
-    en: form.description_en.trim(),
+  const date: { year: number; month?: number; day?: number } = {
+    year: Number(form.date_year),
   };
-  if (form.description_fr.trim()) description.fr = form.description_fr.trim();
+  if (form.date_month.trim()) date.month = Number(form.date_month);
+  if (form.date_day.trim()) date.day = Number(form.date_day);
 
   return {
     slug: form.slug.trim(),
-    name,
-    shortName,
-    startYear: Number(form.startYear),
-    endYear: form.endYear.trim() ? Number(form.endYear) : null,
-    description,
+    title,
+    content,
+    date,
+    eraSlug: form.eraSlug.trim(),
+    tags: form.tags,
+    significance: form.significance as EventSignificance,
   };
 }
 
-function validate(form: EraFormData, isCreate: boolean): string | null {
+function validate(form: EventFormData, isCreate: boolean): string | null {
   if (isCreate) {
     if (!form.slug.trim()) return "Slug is required";
     if (!/^[a-z0-9-]+$/.test(form.slug.trim()))
       return "Slug must be lowercase kebab-case (a–z, 0–9, hyphens only)";
   }
-  if (!form.name_en.trim()) return "Name (EN) is required";
-  if (!form.shortName_en.trim()) return "Short name (EN) is required";
-  if (!form.description_en.trim()) return "Description (EN) is required";
-  if (!form.startYear.trim() || isNaN(Number(form.startYear)))
-    return "Start year must be a valid number";
-  if (form.endYear.trim() && isNaN(Number(form.endYear)))
-    return "End year must be a valid number";
+  if (!form.title_en.trim()) return "Title (EN) is required";
+  if (!form.content_en.trim()) return "Content (EN) is required";
+  if (!form.date_year.trim() || isNaN(Number(form.date_year)))
+    return "Year must be a valid number";
+  if (!form.eraSlug.trim()) return "Era is required";
   return null;
 }
 
-// ── Locale config ────────────────────────────────────────────────────────────
+// ── Constants ─────────────────────────────────────────────────────────────────
 
 const LOCALES = [
   { code: "en", label: "EN" },
@@ -118,6 +130,12 @@ const LOCALES = [
 ] as const;
 
 type LocaleCode = (typeof LOCALES)[number]["code"];
+
+const SIGNIFICANCE_OPTIONS = [
+  { value: EVENT_SIGNIFICANCE.STANDARD, label: "Standard" },
+  { value: EVENT_SIGNIFICANCE.MAJOR, label: "Major" },
+  { value: EVENT_SIGNIFICANCE.CRITICAL, label: "Critical" },
+];
 
 // ── Field components ──────────────────────────────────────────────────────────
 
@@ -131,25 +149,24 @@ function FieldLabel({ children }: { children: React.ReactNode }) {
 
 // ── Main Component ───────────────────────────────────────────────────────────
 
-export interface ErasCrudProps {
-  initialEras?: LocalizedEra[];
+export interface EventsCrudProps {
+  initialEvents?: LocalizedEvent[];
 }
 
-export function ErasCrud({ initialEras = [] }: ErasCrudProps) {
+export function EventsCrud({ initialEvents = [] }: EventsCrudProps) {
   const format = useFormatter();
   const currentLocale = useLocale() as LocaleCode;
 
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
-  const [sort, setSort] = useState("startYear");
-  const [fromYear, setFromYear] = useState("");
-  const [toYear, setToYear] = useState("");
-  const [ongoingOnly, setOngoingOnly] = useState(false);
+  const [sort, setSort] = useState("date.year");
+  const [filterEra, setFilterEra] = useState("");
+  const [filterSignificance, setFilterSignificance] = useState("");
 
   const [formOpen, setFormOpen] = useState(false);
   const [deleteSlug, setDeleteSlug] = useState<string | null>(null);
   const [editingSlug, setEditingSlug] = useState<string | null>(null);
-  const [form, setForm] = useState<EraFormData>(EMPTY_FORM);
+  const [form, setForm] = useState<EventFormData>(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
   const [formLocale, setFormLocale] = useState<LocaleCode>("en");
 
@@ -162,21 +179,22 @@ export function ErasCrud({ initialEras = [] }: ErasCrudProps) {
 
   const apiLocale: LocaleCode = currentLocale === "fr" ? "fr" : "en";
 
-  const erasUrl = useMemo(() => {
+  const eventsUrl = useMemo(() => {
     const params = new URLSearchParams();
     params.set("locale", apiLocale);
     params.set("sort", sort);
     if (debouncedQuery) params.set("q", debouncedQuery);
-    return `/api/timeline/eras?${params.toString()}`;
-  }, [apiLocale, sort, debouncedQuery]);
+    if (filterEra) params.set("eraSlug", filterEra);
+    return `/api/timeline/events?${params.toString()}`;
+  }, [apiLocale, sort, debouncedQuery, filterEra]);
 
   const { data, error, isLoading, mutate } = useSWR<
-    FetchedData<LocalizedEra[]>
-  >(erasUrl, fetcher, {
+    FetchedData<LocalizedEvent[]>
+  >(eventsUrl, fetcher, {
     keepPreviousData: true,
     fallbackData: {
-      data: initialEras,
-      totalCount: initialEras.length,
+      data: initialEvents,
+      totalCount: initialEvents.length,
       page: 1,
       perPage: 0,
       hasMore: false,
@@ -184,18 +202,37 @@ export function ErasCrud({ initialEras = [] }: ErasCrudProps) {
     },
   });
 
-  const eras = useMemo(() => {
-    const fetched = data?.data ?? [];
-    const min = fromYear.trim() ? Number(fromYear) : null;
-    const max = toYear.trim() ? Number(toYear) : null;
+  // Fetch eras for the era selector in the form
+  const { data: erasData } = useSWR<FetchedData<LocalizedEra[]>>(
+    "/api/timeline/eras?locale=en&sort=startYear&limit=200",
+    fetcher,
+  );
 
-    return fetched.filter((era) => {
-      if (ongoingOnly && era.endYear !== null) return false;
-      if (min !== null && era.startYear < min) return false;
-      if (max !== null && era.startYear > max) return false;
-      return true;
-    });
-  }, [data, fromYear, toYear, ongoingOnly]);
+  const erasOptions = useMemo(
+    () =>
+      (erasData?.data ?? []).map((e) => ({
+        value: e.slug,
+        label: `${e.shortName} — ${e.slug}`,
+      })),
+    [erasData],
+  );
+
+  const eraFilterOptions = useMemo(
+    () => [
+      { value: "", label: "All Eras" },
+      ...(erasData?.data ?? []).map((e) => ({
+        value: e.slug,
+        label: e.shortName,
+      })),
+    ],
+    [erasData],
+  );
+
+  const events = useMemo(() => {
+    const fetched = data?.data ?? [];
+    if (!filterSignificance) return fetched;
+    return fetched.filter((e) => e.significance === filterSignificance);
+  }, [data, filterSignificance]);
 
   function openCreate() {
     setEditingSlug(null);
@@ -206,23 +243,32 @@ export function ErasCrud({ initialEras = [] }: ErasCrudProps) {
 
   async function openEdit(slug: string) {
     try {
-      const res = await fetch(`/api/timeline/eras/${slug}`);
+      const res = await fetch(`/api/timeline/events/${slug}`);
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.error ?? "Failed to load era");
+        throw new Error(data.error ?? "Failed to load event");
       }
-      const { era } = (await res.json()) as { era: IEra };
-      setEditingSlug(era.slug);
-      setForm(eraToForm(era));
+      const { event } = (await res.json()) as { event: IEvent };
+      setEditingSlug(event.slug);
+      setForm(eventToForm(event));
       setFormLocale("en");
       setFormOpen(true);
     } catch (e: unknown) {
-      toast.error(e instanceof Error ? e.message : "Failed to load era");
+      toast.error(e instanceof Error ? e.message : "Failed to load event");
     }
   }
 
-  function setField(key: keyof EraFormData, value: string) {
+  function setField(key: keyof EventFormData, value: string) {
     setForm((prev) => ({ ...prev, [key]: value }));
+  }
+
+  function toggleTag(tag: string) {
+    setForm((prev) => ({
+      ...prev,
+      tags: prev.tags.includes(tag)
+        ? prev.tags.filter((t) => t !== tag)
+        : [...prev.tags, tag],
+    }));
   }
 
   async function handleSave() {
@@ -235,8 +281,8 @@ export function ErasCrud({ initialEras = [] }: ErasCrudProps) {
     try {
       const payload = formToPayload(form);
       const url = isCreate
-        ? "/api/timeline/eras"
-        : `/api/timeline/eras/${editingSlug}`;
+        ? "/api/timeline/events"
+        : `/api/timeline/events/${editingSlug}`;
       const method = isCreate ? "POST" : "PUT";
 
       const res = await fetch(url, {
@@ -250,7 +296,7 @@ export function ErasCrud({ initialEras = [] }: ErasCrudProps) {
         throw new Error(data.error ?? "Request failed");
       }
 
-      const { era: saved } = (await res.json()) as { era: LocalizedEra };
+      const { event: saved } = (await res.json()) as { event: LocalizedEvent };
       await mutate(
         (current) => {
           const previous = current?.data ?? [];
@@ -258,7 +304,7 @@ export function ErasCrud({ initialEras = [] }: ErasCrudProps) {
             isCreate
               ? [...previous, saved]
               : previous.map((e) => (e.slug === editingSlug ? saved : e))
-          ).sort((a, b) => a.startYear - b.startYear);
+          ).sort((a, b) => a.date.year - b.date.year);
 
           return {
             data: next,
@@ -271,7 +317,7 @@ export function ErasCrud({ initialEras = [] }: ErasCrudProps) {
         },
         { revalidate: false },
       );
-      toast.success(isCreate ? "Era created" : "Era updated");
+      toast.success(isCreate ? "Event created" : "Event updated");
       setFormOpen(false);
     } catch (e: unknown) {
       toast.error(e instanceof Error ? e.message : "Something went wrong");
@@ -281,11 +327,10 @@ export function ErasCrud({ initialEras = [] }: ErasCrudProps) {
   }
 
   async function handleDelete() {
-    // Capture slug immediately — dialog will close via AlertDialogAction → onOpenChange
     const slug = deleteSlug;
     if (!slug) return;
     try {
-      const res = await fetch(`/api/timeline/eras/${slug}`, {
+      const res = await fetch(`/api/timeline/events/${slug}`, {
         method: "DELETE",
       });
       if (!res.ok) {
@@ -307,20 +352,16 @@ export function ErasCrud({ initialEras = [] }: ErasCrudProps) {
         },
         { revalidate: false },
       );
-      toast.success(`Era "${slug}" deleted`);
+      toast.success(`Event "${slug}" deleted`);
     } catch (e: unknown) {
       toast.error(e instanceof Error ? e.message : "Delete failed");
     }
   }
 
-  const minYear = eras.length
-    ? Math.min(...eras.map((e) => e.startYear))
-    : null;
-  const maxYear = eras.some((e) => e.endYear == null)
-    ? "Present"
-    : eras.length
-      ? `${format.number(Math.max(...eras.map((e) => e.endYear ?? 0)))} SE`
-      : null;
+  const criticalCount = events.filter(
+    (e) => e.significance === EVENT_SIGNIFICANCE.CRITICAL,
+  ).length;
+  const erasReferenced = new Set(events.map((e) => e.eraSlug)).size;
 
   return (
     <div className="relative">
@@ -334,12 +375,13 @@ export function ErasCrud({ initialEras = [] }: ErasCrudProps) {
                 UEE Historical Archive — Admin
               </p>
               <h1 className="font-orbitron text-2xl font-bold tracking-tight text-foreground">
-                Era Management
+                Event Management
               </h1>
               <p className="font-rajdhani text-sm text-foreground/40 mt-1">
-                {format.number(eras.length)} era{eras.length !== 1 ? "s" : ""}
-                {minYear && maxYear
-                  ? ` · ${format.number(minYear)} SE – ${maxYear}`
+                {format.number(events.length)} event
+                {events.length !== 1 ? "s" : ""}
+                {erasReferenced > 0
+                  ? ` · ${format.number(erasReferenced)} era${erasReferenced !== 1 ? "s" : ""} referenced`
                   : ""}
               </p>
             </div>
@@ -348,7 +390,7 @@ export function ErasCrud({ initialEras = [] }: ErasCrudProps) {
               className="font-mono text-[10px] uppercase tracking-widest shrink-0"
             >
               <Plus className="h-4 w-4" />
-              New Era
+              New Event
             </Button>
           </div>
         </div>
@@ -356,18 +398,14 @@ export function ErasCrud({ initialEras = [] }: ErasCrudProps) {
         {/* ── Stats strip ──────────────────────────────────────────────────── */}
         <div className="grid grid-cols-3 gap-3">
           {[
-            { label: "Total Eras", value: format.number(eras.length) },
-            {
-              label: "Start Year",
-              value: minYear ? `${format.number(minYear)} SE` : "—",
-            },
-            { label: "End Year", value: maxYear ?? "—" },
+            { label: "Total Events", value: format.number(events.length) },
+            { label: "Critical", value: format.number(criticalCount) },
+            { label: "Eras Referenced", value: format.number(erasReferenced) },
           ].map(({ label, value }) => (
             <div
               key={label}
               className="relative border border-border/35 bg-card/40 rounded-sm px-4 py-3 overflow-hidden"
             >
-              {/* corner decorations */}
               <span className="absolute top-0 left-0 h-3 w-3 border-t border-l border-primary/40" />
               <span className="absolute bottom-0 right-0 h-3 w-3 border-b border-r border-primary/40" />
               <p className="font-mono text-[9px] uppercase tracking-widest text-foreground/35 mb-1">
@@ -383,14 +421,14 @@ export function ErasCrud({ initialEras = [] }: ErasCrudProps) {
         {/* ── Search + filters ────────────────────────────────────────────── */}
         <div className="border border-border/35 bg-card/30 rounded-sm px-4 py-3 space-y-2">
           <div className="grid gap-3 md:grid-cols-12 md:items-end">
-            <div className="md:col-span-5">
+            <div className="md:col-span-4">
               <p className="font-mono text-[9px] uppercase tracking-widest text-foreground/40 mb-1">
-                Atlas Search
+                Search
               </p>
               <SearchInput
                 value={query}
                 onChange={setQuery}
-                placeholder="Search slug, name, short name, description..."
+                placeholder="Search slug, title, content..."
                 loading={isLoading}
               />
             </div>
@@ -401,45 +439,36 @@ export function ErasCrud({ initialEras = [] }: ErasCrudProps) {
                 value={sort}
                 onChange={setSort}
                 options={[
-                  { value: "startYear", label: "Start Year ↑" },
-                  { value: "-startYear", label: "Start Year ↓" },
+                  { value: "date.year", label: "Year ↑" },
+                  { value: "-date.year", label: "Year ↓" },
                   { value: "slug", label: "Slug ↑" },
                   { value: "-slug", label: "Slug ↓" },
                 ]}
               />
             </div>
 
-            <div className="md:col-span-4 grid grid-cols-[1fr_1fr_auto] gap-2 items-end">
-              <NumberInput
-                label="From Year"
-                value={fromYear ? Number(fromYear) : 0}
-                step={100}
-                min={0}
-                onChange={(v) => setFromYear(v > 0 ? String(v) : "")}
+            <div className="md:col-span-3">
+              <Select
+                label="Era"
+                value={filterEra}
+                onChange={setFilterEra}
+                options={eraFilterOptions}
               />
-              <NumberInput
-                label="To Year"
-                value={toYear ? Number(toYear) : 0}
-                step={100}
-                min={0}
-                onChange={(v) => setToYear(v > 0 ? String(v) : "")}
+            </div>
+
+            <div className="md:col-span-2">
+              <Select
+                label="Significance"
+                value={filterSignificance}
+                onChange={setFilterSignificance}
+                options={[{ value: "", label: "All" }, ...SIGNIFICANCE_OPTIONS]}
               />
-              <label className="h-9 inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-foreground/55">
-                <Checkbox
-                  checked={ongoingOnly}
-                  onCheckedChange={(checked) =>
-                    setOngoingOnly(checked === true)
-                  }
-                  className="h-3.5 w-3.5"
-                />
-                Ongoing
-              </label>
             </div>
           </div>
 
           <p className="font-mono text-[9px] uppercase tracking-widest text-foreground/30">
-            Search uses Atlas index when available, with automatic Mongo
-            text-index fallback.
+            Significance filter applied client-side; era and search forwarded to
+            API.
           </p>
         </div>
 
@@ -447,34 +476,37 @@ export function ErasCrud({ initialEras = [] }: ErasCrudProps) {
         <div className="relative border border-border/40 bg-card/20 rounded-sm overflow-hidden">
           <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
 
-          {/* Table header */}
           <div className="overflow-x-auto">
-            <div className="min-w-[640px]">
-              <div className="grid grid-cols-[3rem_1fr_1fr_11rem_8rem_6rem] gap-4 px-5 py-2.5 bg-card/60 border-b border-border/30">
-                {["#", "SLUG", "NAME", "YEARS", "SHORT NAME", ""].map((h) => (
-                  <span
-                    key={h}
-                    className="font-mono text-[9px] uppercase tracking-widest text-foreground/35"
-                  >
-                    {h}
-                  </span>
-                ))}
+            <div className="min-w-[820px]">
+              {/* Table header */}
+              <div className="grid grid-cols-[3rem_1fr_1fr_7rem_7rem_8rem_6rem] gap-4 px-5 py-2.5 bg-card/60 border-b border-border/30">
+                {["#", "SLUG", "TITLE", "DATE", "ERA", "SIGNIFICANCE", ""].map(
+                  (h) => (
+                    <span
+                      key={h}
+                      className="font-mono text-[9px] uppercase tracking-widest text-foreground/35"
+                    >
+                      {h}
+                    </span>
+                  ),
+                )}
               </div>
 
-              {/* Empty state */}
+              {/* Loading state */}
               {isLoading && (
                 <div className="flex flex-col items-center justify-center py-16 gap-3">
                   <Loader2 className="h-6 w-6 text-primary/40 animate-spin" />
                   <p className="font-mono text-[10px] uppercase tracking-widest text-foreground/35">
-                    Loading eras...
+                    Loading events...
                   </p>
                 </div>
               )}
 
+              {/* Error state */}
               {!isLoading && error && (
                 <div className="flex flex-col items-center justify-center py-16 gap-3">
                   <p className="font-mono text-[10px] uppercase tracking-widest text-destructive/80">
-                    Failed to fetch eras
+                    Failed to fetch events
                   </p>
                   <Button
                     size="sm"
@@ -487,11 +519,12 @@ export function ErasCrud({ initialEras = [] }: ErasCrudProps) {
                 </div>
               )}
 
-              {!isLoading && !error && eras.length === 0 && (
+              {/* Empty state */}
+              {!isLoading && !error && events.length === 0 && (
                 <div className="flex flex-col items-center justify-center py-20 gap-3">
-                  <Layers className="h-8 w-8 text-foreground/15" />
+                  <CalendarDays className="h-8 w-8 text-foreground/15" />
                   <p className="font-mono text-[10px] uppercase tracking-widest text-foreground/25">
-                    No eras found for current search/filters
+                    No events found for current search/filters
                   </p>
                   <Button
                     variant="outline"
@@ -499,7 +532,7 @@ export function ErasCrud({ initialEras = [] }: ErasCrudProps) {
                     onClick={openCreate}
                     className="font-mono text-[10px] uppercase tracking-widest mt-1"
                   >
-                    Create First Era
+                    Create First Event
                   </Button>
                 </div>
               )}
@@ -507,11 +540,11 @@ export function ErasCrud({ initialEras = [] }: ErasCrudProps) {
               {/* Rows */}
               {!isLoading &&
                 !error &&
-                eras.map((era, i) => (
+                events.map((event, i) => (
                   <div
-                    key={era.slug}
+                    key={event.slug}
                     className={cn(
-                      "grid grid-cols-[3rem_1fr_1fr_11rem_8rem_6rem] gap-4 px-5 py-3 items-center",
+                      "grid grid-cols-[3rem_1fr_1fr_7rem_7rem_8rem_6rem] gap-4 px-5 py-3 items-center",
                       "transition-colors duration-150 group",
                       "border-b border-border/15 last:border-0",
                       i % 2 !== 0 && "bg-foreground/[0.018]",
@@ -523,22 +556,38 @@ export function ErasCrud({ initialEras = [] }: ErasCrudProps) {
                     </span>
 
                     <span className="font-mono text-xs text-primary/75 truncate">
-                      {era.slug}
+                      {event.slug}
                     </span>
 
                     <span className="font-rajdhani text-sm text-foreground/80 truncate">
-                      {lget(era.name, apiLocale)}
+                      {lget(event.title, apiLocale)}
                     </span>
 
                     <span className="font-mono text-[11px] text-foreground/45 whitespace-nowrap">
-                      {format.number(era.startYear)} SE
-                      {era.endYear != null
-                        ? ` – ${format.number(era.endYear)} SE`
-                        : " – Present"}
+                      {event.date.year}
+                      {event.date.month != null
+                        ? `-${String(event.date.month).padStart(2, "0")}`
+                        : ""}
+                      {event.date.day != null
+                        ? `-${String(event.date.day).padStart(2, "0")}`
+                        : ""}
                     </span>
 
-                    <span className="font-mono text-[11px] text-foreground/45 truncate uppercase">
-                      {lget(era.shortName, apiLocale)}
+                    <span className="font-mono text-[11px] text-foreground/45 truncate">
+                      {event.eraSlug}
+                    </span>
+
+                    <span
+                      className={cn(
+                        "font-mono text-[9px] uppercase tracking-widest px-1.5 py-0.5 rounded-sm border w-fit",
+                        event.significance === EVENT_SIGNIFICANCE.CRITICAL
+                          ? "border-destructive/50 text-destructive/80 bg-destructive/10"
+                          : event.significance === EVENT_SIGNIFICANCE.MAJOR
+                            ? "border-primary/40 text-primary/70 bg-primary/10"
+                            : "border-border/30 text-foreground/40 bg-foreground/5",
+                      )}
+                    >
+                      {event.significance}
                     </span>
 
                     {/* Actions */}
@@ -546,8 +595,8 @@ export function ErasCrud({ initialEras = [] }: ErasCrudProps) {
                       <Button
                         variant="ghost"
                         size="icon-sm"
-                        onClick={() => openEdit(era.slug)}
-                        aria-label={`Edit ${era.slug}`}
+                        onClick={() => openEdit(event.slug)}
+                        aria-label={`Edit ${event.slug}`}
                         className="opacity-0 group-hover:opacity-100 transition-opacity text-foreground/40 hover:text-primary hover:bg-primary/10"
                       >
                         <Pencil className="h-3.5 w-3.5" />
@@ -555,8 +604,8 @@ export function ErasCrud({ initialEras = [] }: ErasCrudProps) {
                       <Button
                         variant="ghost"
                         size="icon-sm"
-                        onClick={() => setDeleteSlug(era.slug)}
-                        aria-label={`Delete ${era.slug}`}
+                        onClick={() => setDeleteSlug(event.slug)}
+                        aria-label={`Delete ${event.slug}`}
                         className="opacity-0 group-hover:opacity-100 transition-opacity text-foreground/40 hover:text-destructive hover:bg-destructive/10"
                       >
                         <Trash2 className="h-3.5 w-3.5" />
@@ -576,10 +625,10 @@ export function ErasCrud({ initialEras = [] }: ErasCrudProps) {
           onClose={() => {
             if (!saving) setFormOpen(false);
           }}
-          title={isCreate ? "Create New Era" : "Edit Era"}
+          title={isCreate ? "Create New Event" : "Edit Event"}
           description={
             isCreate
-              ? "Add a new historical era to the UEE archive"
+              ? "Add a new historical event to the UEE archive"
               : `slug: ${editingSlug} — slug is immutable`
           }
           size="lg"
@@ -599,72 +648,149 @@ export function ErasCrud({ initialEras = [] }: ErasCrudProps) {
                 disabled={saving}
               >
                 {saving && <Loader2 className="h-4 w-4 animate-spin mr-1" />}
-                {isCreate ? "Create Era" : "Save Changes"}
+                {isCreate ? "Create Event" : "Save Changes"}
               </ModalButton>
             </>
           }
         >
           <div className="overflow-y-auto max-h-[60vh] space-y-5 pr-1 py-1">
-            {/* Slug */}
-            <div>
+            {/* Slug — create only */}
+            {isCreate && (
               <TextInput
-                label={isCreate ? "Slug *" : "Slug (immutable)"}
+                label="Slug *"
                 value={form.slug}
                 onChange={(e) => setField("slug", e.target.value)}
-                placeholder="age-of-exploration"
-                disabled={!isCreate}
+                placeholder="rsi-founded"
                 hint="Lowercase kebab-case only"
               />
-            </div>
+            )}
 
-            {/* Year range */}
+            {/* Era / Significance */}
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <NumberInput
-                  label="Start Year *"
-                  value={Number(form.startYear) || 2500}
-                  step={10}
-                  onChange={(v) => setField("startYear", String(v))}
+              <div>
+                <Select
+                  label="Era *"
+                  value={form.eraSlug}
+                  onChange={(v) => setField("eraSlug", v)}
+                  options={
+                    erasOptions.length
+                      ? erasOptions
+                      : [{ value: "", label: "Loading eras..." }]
+                  }
                 />
               </div>
-              <div className="space-y-1.5">
+              <div>
+                <Select
+                  label="Significance"
+                  value={form.significance}
+                  onChange={(v) => setField("significance", v)}
+                  options={SIGNIFICANCE_OPTIONS}
+                />
+              </div>
+            </div>
+
+            {/* Date */}
+            <div className="grid grid-cols-3 gap-4">
+              <div>
+                <NumberInput
+                  label="Year *"
+                  value={Number(form.date_year) || 2500}
+                  step={1}
+                  onChange={(v) => setField("date_year", String(v))}
+                />
+              </div>
+
+              <div>
                 <p className="font-mono text-[9px] uppercase tracking-widest text-foreground/40 mb-1">
-                  End Year
+                  Month
                 </p>
-                {form.endYear === "" ? (
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono text-[10px] uppercase tracking-widest text-primary/60 border border-primary/20 rounded px-2 py-1">
-                      Ongoing
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setField(
-                          "endYear",
-                          String((Number(form.startYear) || 2500) + 100),
-                        )
-                      }
-                      className="font-mono text-[9px] uppercase tracking-widest text-foreground/40 hover:text-foreground/70 transition-colors"
-                    >
-                      Set year
-                    </button>
-                  </div>
+                {form.date_month === "" ? (
+                  <button
+                    type="button"
+                    onClick={() => setField("date_month", "1")}
+                    className="font-mono text-[9px] uppercase tracking-widest text-foreground/40 hover:text-foreground/70 transition-colors h-9 flex items-center"
+                  >
+                    + Set month
+                  </button>
                 ) : (
                   <div className="flex items-center gap-2">
                     <NumberInput
-                      value={Number(form.endYear)}
-                      step={10}
-                      onChange={(v) => setField("endYear", String(v))}
+                      value={Number(form.date_month)}
+                      step={1}
+                      min={1}
+                      max={12}
+                      onChange={(v) => setField("date_month", String(v))}
                     />
                     <button
                       type="button"
-                      onClick={() => setField("endYear", "")}
+                      onClick={() => {
+                        setField("date_month", "");
+                        setField("date_day", "");
+                      }}
                       className="font-mono text-[9px] uppercase tracking-widest text-foreground/40 hover:text-primary/70 transition-colors"
                     >
-                      Ongoing
+                      Clear
                     </button>
                   </div>
                 )}
+              </div>
+
+              <div>
+                <p className="font-mono text-[9px] uppercase tracking-widest text-foreground/40 mb-1">
+                  Day
+                </p>
+                {form.date_month === "" ? (
+                  <span className="font-mono text-[9px] text-foreground/25 h-9 flex items-center">
+                    Set month first
+                  </span>
+                ) : form.date_day === "" ? (
+                  <button
+                    type="button"
+                    onClick={() => setField("date_day", "1")}
+                    className="font-mono text-[9px] uppercase tracking-widest text-foreground/40 hover:text-foreground/70 transition-colors h-9 flex items-center"
+                  >
+                    + Set day
+                  </button>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <NumberInput
+                      value={Number(form.date_day)}
+                      step={1}
+                      min={1}
+                      max={31}
+                      onChange={(v) => setField("date_day", String(v))}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setField("date_day", "")}
+                      className="font-mono text-[9px] uppercase tracking-widest text-foreground/40 hover:text-primary/70 transition-colors"
+                    >
+                      Clear
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="h-px bg-border/30" />
+
+            {/* Tags */}
+            <div>
+              <FieldLabel>Tags</FieldLabel>
+              <div className="grid grid-cols-3 gap-y-2.5 gap-x-3">
+                {Object.values(EVENT_TAGS).map((tag) => (
+                  <label
+                    key={tag}
+                    className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-foreground/55 cursor-pointer select-none"
+                  >
+                    <Checkbox
+                      checked={form.tags.includes(tag)}
+                      onCheckedChange={() => toggleTag(tag)}
+                      className="h-3.5 w-3.5 shrink-0"
+                    />
+                    {tag}
+                  </label>
+                ))}
               </div>
             </div>
 
@@ -699,41 +825,31 @@ export function ErasCrud({ initialEras = [] }: ErasCrudProps) {
               )}
             </div>
 
-            {/* Era Name */}
+            {/* Title */}
             <TextInput
-              label={`Era Name ${formLocale === "en" ? "*" : `(${formLocale.toUpperCase()})`}`}
-              value={form[`name_${formLocale}`]}
-              onChange={(e) => setField(`name_${formLocale}`, e.target.value)}
+              label={`Title ${formLocale === "en" ? "*" : `(${formLocale.toUpperCase()})`}`}
+              value={form[`title_${formLocale}`]}
+              onChange={(e) => setField(`title_${formLocale}`, e.target.value)}
               placeholder={
-                formLocale === "en" ? "Age of Exploration" : "Ère d'Exploration"
+                formLocale === "en" ? "RSI is Founded" : "RSI est Fondée"
               }
             />
 
-            {/* Short Name */}
-            <TextInput
-              label={`Short Name ${formLocale === "en" ? "*" : `(${formLocale.toUpperCase()})`}`}
-              value={form[`shortName_${formLocale}`]}
-              onChange={(e) =>
-                setField(`shortName_${formLocale}`, e.target.value)
-              }
-              placeholder="EXPLORATION"
-            />
-
-            {/* Description */}
+            {/* Content */}
             <div>
               <FieldLabel>
-                Description{" "}
+                Content{" "}
                 {formLocale === "en" ? "*" : `(${formLocale.toUpperCase()})`}
               </FieldLabel>
               <Textarea
-                value={form[`description_${formLocale}`]}
+                value={form[`content_${formLocale}`]}
                 onChange={(e) =>
-                  setField(`description_${formLocale}`, e.target.value)
+                  setField(`content_${formLocale}`, e.target.value)
                 }
                 placeholder={
                   formLocale === "en"
-                    ? "A brief description of this era in English..."
-                    : "Une brève description de cette ère en français..."
+                    ? "Describe this event in English..."
+                    : "Décrivez cet événement en français..."
                 }
                 className="font-rajdhani text-sm min-h-40 resize-y"
               />
@@ -756,17 +872,15 @@ export function ErasCrud({ initialEras = [] }: ErasCrudProps) {
                 Cancel
               </ModalButton>
               <ModalButton variant="danger" onClick={handleDelete}>
-                Delete Era
+                Delete Event
               </ModalButton>
             </>
           }
         >
           <p className="font-rajdhani text-base leading-relaxed">
-            You are about to permanently delete era{" "}
+            You are about to permanently delete event{" "}
             <span className="font-mono text-sm text-primary">{deleteSlug}</span>
-            . This cannot be undone. Events with this{" "}
-            <span className="font-mono text-xs">eraSlug</span> will retain their
-            reference but will have no matching era.
+            . This cannot be undone.
           </p>
         </Modal>
       </div>

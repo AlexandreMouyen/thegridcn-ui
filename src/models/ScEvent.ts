@@ -39,9 +39,27 @@ const EventSchema = new mongoose.Schema<IEvent>(
       enum: Object.values(EVENT_SIGNIFICANCE),
       default: EVENT_SIGNIFICANCE.STANDARD,
     },
-    order: { type: Number, required: true },
   },
   { timestamps: true },
+);
+
+EventSchema.index(
+  {
+    slug: "text",
+    "title.en": "text",
+    "title.fr": "text",
+    "content.en": "text",
+    "content.fr": "text",
+  },
+  {
+    weights: {
+      slug: 10,
+      "title.en": 5,
+      "title.fr": 5,
+      "content.en": 2,
+      "content.fr": 2,
+    },
+  },
 );
 
 EventSchema.static("withAqp", withAqp);

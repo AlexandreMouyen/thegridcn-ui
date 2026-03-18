@@ -10,6 +10,7 @@ import {
   ChevronRight,
   ChevronLeft,
   BookOpen,
+  CalendarDays,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { USER_ROLES } from "@/types/user";
@@ -23,7 +24,13 @@ const ADMIN_NAV_CONFIG = [
         href: "/admin/timeline/eras",
         labelKey: "nav.eras" as const,
         icon: <Clock className="h-3.5 w-3.5" />,
-        matchPrefix: "/admin/timeline",
+        matchPrefix: "/admin/timeline/eras",
+      },
+      {
+        href: "/admin/timeline/events",
+        labelKey: "nav.events" as const,
+        icon: <CalendarDays className="h-3.5 w-3.5" />,
+        matchPrefix: "/admin/timeline/events",
       },
     ],
   },

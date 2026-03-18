@@ -237,6 +237,7 @@ declare const messages: {
     "nav": {
       "timeline": "Timeline",
       "eras": "Eras",
+      "events": "Events",
       "lore": "Lore",
       "glossary": "Glossary"
     }

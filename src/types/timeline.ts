@@ -77,8 +77,15 @@ export interface IEvent {
   tags: EventTag[];
   content: LocalizedString;
   significance: EventSignificance;
-  /** Sort order within the era. */
-  order: number;
   createdAt?: Date;
   updatedAt?: Date;
 }
+
+/**
+ * IEvent with LocalizedString fields reduced to a single string.
+ * This is the shape returned by withAqp when a `locale` param is passed.
+ */
+export type LocalizedEvent = Omit<IEvent, "title" | "content"> & {
+  title: string;
+  content: string;
+};
