@@ -1,8 +1,8 @@
 "use client";
 
 import * as React from "react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname } from "@/i18n/navigation";
+import { Link } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 import { TheGridcnLogo } from "./thegridcn-logo";
 import { HeaderAuthSection } from "./header-auth-section";
@@ -38,8 +38,12 @@ function CloseIcon({ className }: { className?: string }) {
   );
 }
 
+import type { ComponentProps } from "react";
+
+type NavHref = ComponentProps<typeof Link>["href"];
+
 interface NavItem {
-  href: string;
+  href: NavHref;
   label: string;
 }
 
@@ -97,7 +101,7 @@ export function TronHeader({ navItems }: TronHeaderProps) {
             <nav className="hidden items-center gap-1 lg:flex">
               {items.map((item) => (
                 <Link
-                  key={item.href}
+                  key={item.label}
                   href={item.href}
                   className={cn(
                     "group relative px-4 py-2 font-mono text-xs tracking-widest transition-colors",
@@ -186,7 +190,7 @@ export function TronHeader({ navItems }: TronHeaderProps) {
           <nav className="flex flex-col gap-2">
             {items.map((item, index) => (
               <Link
-                key={item.href}
+                key={item.label}
                 href={item.href}
                 onClick={() => setMobileMenuOpen(false)}
                 className={cn(
