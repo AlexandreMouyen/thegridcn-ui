@@ -1,0 +1,229 @@
+{
+  "metadata": {
+    "siteName": "The Gridcn",
+    "home": {
+      "title": "The Gridcn | Thème shadcn/ui Inspiré de Tron",
+      "description": "Un thème et une bibliothèque de composants inspiré de Tron: Ares pour shadcn/ui. 55+ composants, 6 thèmes de couleurs dieux grecs, effets 3D et éléments d'interface HUD pour des interfaces React futuristes."
+    },
+    "components": {
+      "title": "Composants | The Gridcn",
+      "description": "Parcourez 55+ composants UI inspirés de Tron pour shadcn/ui. Cartes de données, éléments HUD, grilles 3D, affichages radar et plus — avec des thèmes de couleurs dieux grecs."
+    },
+    "timeline": {
+      "title": "Chronologie Star Citizen | The Gridcn",
+      "description": "Naviguez à travers 879 ans d'histoire de lore Star Citizen — du premier moteur quantique en 2075 SE à l'UEE moderne fragmentée de 2954 SE."
+    },
+    "templates": {
+      "title": "Modèles | The Gridcn",
+      "description": "Modèles de pages complètes avec des composants inspirés de Tron. Tableau de bord, page d'accueil, blog, analytics — prêts à l'emploi avec shadcn/ui."
+    }
+  },
+  "nav": {
+    "home": "Accueil",
+    "components": "Composants",
+    "templates": "Modèles",
+    "timeline": "Chronologie",
+    "login": "Connexion",
+    "docs": "Docs",
+    "github": "GitHub"
+  },
+  "header": {
+    "tagline": "ENTREZ DANS LA GRILLE",
+    "viewComponents": "Voir les Composants",
+    "browseTemplates": "Parcourir les Modèles"
+  },
+  "home": {
+    "hero": {
+      "badge": "INSPIRÉ DE TRON: ARES",
+      "title": "Créez des Interfaces Futuristes sur La Grille",
+      "subtitle": "Un thème et une bibliothèque de composants inspirés de Tron pour shadcn/ui. Composants intégrables avec des schémas de couleurs dieux grecs, effets 3D et éléments HUD.",
+      "cta": "Commencer",
+      "components": "Composants",
+      "templates": "Modèles",
+      "viewSource": "Voir le Code Source"
+    },
+    "features": {
+      "title": "CAPACITÉS",
+      "subtitle": "Tout ce dont vous avez besoin pour créer des interfaces immersives et futuristes.",
+      "items": {
+        "components": {
+          "title": "55+ Composants",
+          "description": "Un ensemble complet de composants UI inspirés de Tron basés sur shadcn/ui — des cartes de données aux affichages radar et grilles 3D."
+        },
+        "themes": {
+          "title": "6 Thèmes Divins",
+          "description": "Schémas de couleurs dieux grecs : Ares (rouge), Tron (cyan), Clu (orange), Athéna (or), Aphrodite (rose), Poséidon (bleu)."
+        },
+        "effects": {
+          "title": "Effets 3D",
+          "description": "Grilles 3D, effets tunnel et géométrie animée propulsés par Three.js — optimisés côté client."
+        },
+        "hud": {
+          "title": "Éléments HUD",
+          "description": "Affichages HUD authentiques : radar, en-têtes uplink, superpositions de scan, réticule — directement depuis la Grille."
+        },
+        "intensity": {
+          "title": "Modes d'Intensité",
+          "description": "Réglez les effets visuels avec des paramètres d'intensité : aucun, léger, moyen ou fort — s'adapte à tout contexte."
+        },
+        "registry": {
+          "title": "Registre shadcn",
+          "description": "Installez n'importe quel composant avec une seule commande CLI. Compatible avec pnpm, npm, yarn et bun."
+        }
+      }
+    },
+    "architecture": {
+      "title": "ARCHITECTURE",
+      "subtitle": "Construit sur des fondations open-source éprouvées.",
+      "stack": {
+        "nextjs": "Next.js 15",
+        "react": "React 19",
+        "typescript": "TypeScript",
+        "tailwind": "Tailwind CSS 4",
+        "shadcn": "shadcn/ui",
+        "threejs": "Three.js"
+      }
+    },
+    "faq": {
+      "title": "FAQ",
+      "subtitle": "Questions fréquemment posées.",
+      "items": {
+        "what": {
+          "question": "Qu'est-ce que The Gridcn ?",
+          "answer": "The Gridcn est un thème et une bibliothèque de composants inspirés de Tron basés sur shadcn/ui. Il fournit 50+ composants pré-stylisés, 6 thèmes de couleurs dieux grecs, des effets 3D propulsés par Three.js, et des éléments d'interface HUD."
+        },
+        "install": {
+          "question": "Comment installer les composants ?",
+          "answer": "Installez les composants via le CLI shadcn : 'pnpm dlx shadcn@latest add @thegridcn/[composant]' pour les composants individuels, ou 'pnpm dlx shadcn@latest list @thegridcn' pour parcourir tous les composants disponibles."
+        },
+        "theme": {
+          "question": "Peut-on personnaliser les thèmes de couleurs ?",
+          "answer": "Oui — tous les thèmes utilisent des propriétés CSS avec l'espace colorimétrique oklch(). Modifiez n'importe quelle variable dans votre globals.css pour personnaliser les couleurs et les effets."
+        },
+        "existing": {
+          "question": "Fonctionne-t-il avec un projet shadcn/ui existant ?",
+          "answer": "Absolument. The Gridcn s'appuie sur les primitives de shadcn/ui. Vous pouvez ajouter des composants stylisés Tron à côté de vos composants existants — sans conflits ni changements cassants."
+        },
+        "typescript": {
+          "question": "Support TypeScript ?",
+          "answer": "Support TypeScript complet avec des définitions de types précises pour tous les composants, valeurs de thème et options de configuration."
+        },
+        "commercial": {
+          "question": "Est-il gratuit pour usage commercial ?",
+          "answer": "The Gridcn est open source. Tous les composants et thèmes sont gratuits pour des projets personnels et commerciaux."
+        },
+        "ssr": {
+          "question": "Supporte-t-il le SSR ?",
+          "answer": "Oui. Tous les composants fonctionnent avec Next.js App Router et SSR par défaut. Les composants Three.js utilisent des imports dynamiques avec ssr: false pour éviter les problèmes d'hydratation."
+        },
+        "updates": {
+          "question": "Y aura-t-il des mises à jour ?",
+          "answer": "De nouveaux composants, thèmes et améliorations sont en développement actif. Suivez le dépôt GitHub pour les mises à jour."
+        }
+      }
+    }
+  },
+  "components": {
+    "title": "COMPOSANTS",
+    "subtitle": "Parcourez et prévisualisez tous les composants disponibles",
+    "search": "Rechercher des composants...",
+    "preview": "Aperçu",
+    "code": "Code",
+    "install": "Installer",
+    "copyCommand": "Copier la commande d'installation",
+    "copied": "Copié !",
+    "noResults": "Aucun composant trouvé",
+    "categories": {
+      "all": "Tous",
+      "display": "Affichage",
+      "feedback": "Retour",
+      "forms": "Formulaires",
+      "layout": "Mise en page",
+      "navigation": "Navigation",
+      "overlays": "Superpositions",
+      "thegridcn": "The Gridcn"
+    }
+  },
+  "templates": {
+    "title": "MODÈLES",
+    "subtitle": "Modèles de pages complètes avec les composants The Gridcn",
+    "viewTemplate": "Voir le Modèle",
+    "items": {
+      "dashboard": {
+        "name": "Tableau de bord",
+        "description": "Tableau de bord admin complet avec barre latérale rétractable, cartes de métriques, graphiques, tableau de données et flux d'activité."
+      },
+      "landing": {
+        "name": "Page d'accueil",
+        "description": "Page d'accueil marketing complète avec section héros, grille de fonctionnalités, cartes de prix, témoignages et FAQ."
+      },
+      "blog": {
+        "name": "Blog",
+        "description": "Page d'article de blog en deux colonnes avec table des matières, blocs de code et biographie de l'auteur."
+      },
+      "analytics": {
+        "name": "Analytique",
+        "description": "Tableau de bord analytique avec métriques clés, graphiques et visualisations de données."
+      },
+      "login": {
+        "name": "Connexion",
+        "description": "Page d'authentification avec formulaire de connexion stylisé Tron et éléments HUD."
+      }
+    }
+  },
+  "timeline": {
+    "title": "CHRONOLOGIE STAR CITIZEN",
+    "subtitle": "879 ans d'histoire Star Citizen",
+    "searchPlaceholder": "Rechercher des événements...",
+    "noResults": "Aucun événement trouvé",
+    "era": "Ère",
+    "year": "Année"
+  },
+  "login": {
+    "title": "AUTHENTIFICATION",
+    "subtitle": "Connectez-vous pour accéder à La Grille",
+    "email": "E-mail",
+    "password": "Mot de passe",
+    "signIn": "Se connecter",
+    "signInWithGithub": "Se connecter avec GitHub",
+    "signInWithDiscord": "Se connecter avec Discord",
+    "noAccount": "Pas de compte ?",
+    "createAccount": "En créer un"
+  },
+  "notFound": {
+    "signal": "[ SIGNAL PERDU ]",
+    "title": "404",
+    "message": "Ce secteur n'existe pas sur La Grille",
+    "returnHome": "Retour à l'accueil",
+    "browseComponents": "Parcourir les Composants"
+  },
+  "theme": {
+    "switcher": "Thème",
+    "intensity": "Intensité",
+    "intensityNone": "Aucune",
+    "intensityLight": "Légère",
+    "intensityMedium": "Moyenne",
+    "intensityHeavy": "Forte",
+    "themes": {
+      "tron": "Tron",
+      "ares": "Arès",
+      "clu": "Clu",
+      "athena": "Athéna",
+      "aphrodite": "Aphrodite",
+      "poseidon": "Poséidon"
+    }
+  },
+  "common": {
+    "loading": "Chargement...",
+    "error": "Une erreur s'est produite",
+    "retry": "Réessayer",
+    "close": "Fermer",
+    "open": "Ouvrir",
+    "copy": "Copier",
+    "copied": "Copié !",
+    "search": "Rechercher",
+    "back": "Retour",
+    "next": "Suivant",
+    "previous": "Précédent"
+  }
+}

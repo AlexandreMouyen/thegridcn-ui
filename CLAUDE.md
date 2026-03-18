@@ -44,6 +44,8 @@ Themes use CSS variables via `data-theme` attribute on `<html>`. Theme state per
 - **Path alias**: `@/*` maps to `./src/*`
 - **Component styling**: Uses Class Variance Authority (cva) patterns from shadcn/ui
 - **Mongoose models**: Interface defined explicitly in `src/types/<model>.ts`, schema+model in `src/models/<Model>.ts`. See skill `.agents/skills/typescript-mongoose/SKILL.md`
+- **Number/date formatting**: Always use `useFormatter` (client) or `getFormatter` (server) from `next-intl` — never `toLocaleString` or `Intl.*` directly. See skill `.agents/skills/next-intl-formatting/SKILL.md`
+- **setRequestLocale**: Every async Server Component (page and layout) under `src/app/[locale]/` must call `setRequestLocale(locale)` — the layout's call does NOT propagate. See skill `.agents/skills/next-intl-request-locale/SKILL.md`
 
 ### Environment Variables
 
