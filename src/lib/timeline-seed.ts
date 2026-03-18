@@ -25,7 +25,6 @@ export const SEED_ERAS: SeedEra[] = [
       en: "Humanity shatters the bounds of the solar system, discovers jump points, and makes first contact with alien civilizations.",
       fr: "L'humanité brise les limites du système solaire, découvre des points de saut et établit le premier contact avec des civilisations extraterrestres.",
     },
-    order: 0,
   },
   {
     slug: "first-tevarin-war",
@@ -43,7 +42,6 @@ export const SEED_ERAS: SeedEra[] = [
       en: "Humanity's first true interstellar conflict — against the militaristic Tevarin species — reshapes the political order.",
       fr: "Le premier véritable conflit interstellaire de l'humanité — contre la militariste espèce Tevarin — remodèle l'ordre politique.",
     },
-    order: 1,
   },
   {
     slug: "messer-era",
@@ -61,7 +59,6 @@ export const SEED_ERAS: SeedEra[] = [
       en: "A dynastic line of authoritarian Imperators reshapes the UEE over 246 years, marked by expansion, suppression, and eventual collapse.",
       fr: "Une lignée dynastique d'Imperators autoritaires remodèle l'UEE sur 246 ans, marquée par l'expansion, la répression et l'effondrement final.",
     },
-    order: 2,
   },
   {
     slug: "restoration",
@@ -79,7 +76,6 @@ export const SEED_ERAS: SeedEra[] = [
       en: "The fall of the Messer regime opens a century of democratic reform, cultural recovery, and painful reckoning with the past.",
       fr: "La chute du régime Messer ouvre un siècle de réforme démocratique, de rétablissement culturel et de douloureux bilan avec le passé.",
     },
-    order: 3,
   },
   {
     slug: "modern-uee",
@@ -97,7 +93,6 @@ export const SEED_ERAS: SeedEra[] = [
       en: "The contemporary era — a civilization navigating the existential threat of the Vanduul, fragile interstellar diplomacy, and its own contradictions.",
       fr: "L'ère contemporaine — une civilisation faisant face à la menace existentielle des Vanduul, à une diplomatie interstellaire fragile et à ses propres contradictions.",
     },
-    order: 4,
   },
 ];
 

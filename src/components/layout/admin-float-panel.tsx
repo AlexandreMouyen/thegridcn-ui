@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { Link, usePathname } from "@/i18n/navigation";
+import type { ComponentProps } from "react";
 import { useSession } from "next-auth/react";
 import { Clock, Shield, ChevronRight, ChevronLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -86,7 +86,7 @@ export function AdminFloatPanel() {
                     return (
                       <Link
                         key={item.href}
-                        href={item.href}
+                        href={item.href as ComponentProps<typeof Link>["href"]}
                         onClick={() => setOpen(false)}
                         className={cn(
                           "group relative flex items-center gap-2.5 rounded-sm px-3 py-2 font-mono text-[10px] uppercase tracking-widest transition-all duration-200",
