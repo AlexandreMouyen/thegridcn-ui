@@ -30,7 +30,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { cn } from "@/lib/utils";
 import { fetcher, FetchedData } from "@/lib/fetcher";
-import type { IEra } from "@/types/timeline";
+import type { IEra, LocalizedEra } from "@/types/timeline";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -144,7 +144,7 @@ function FieldLabel({ children }: { children: React.ReactNode }) {
 // ── Main Component ───────────────────────────────────────────────────────────
 
 export interface ErasCrudProps {
-  initialEras?: IEra[];
+  initialEras?: LocalizedEra[];
 }
 
 export function ErasCrud({ initialEras = [] }: ErasCrudProps) {
@@ -188,21 +188,19 @@ export function ErasCrud({ initialEras = [] }: ErasCrudProps) {
     return `/api/timeline/eras?${params.toString()}`;
   }, [apiLocale, sort, debouncedQuery]);
 
-  const { data, error, isLoading, mutate } = useSWR<FetchedData<IEra[]>>(
-    erasUrl,
-    fetcher,
-    {
-      keepPreviousData: true,
-      fallbackData: {
-        data: initialEras,
-        totalCount: initialEras.length,
-        page: 1,
-        perPage: 0,
-        hasMore: false,
-        headers: {},
-      },
+  const { data, error, isLoading, mutate } = useSWR<
+    FetchedData<LocalizedEra[]>
+  >(erasUrl, fetcher, {
+    keepPreviousData: true,
+    fallbackData: {
+      data: initialEras,
+      totalCount: initialEras.length,
+      page: 1,
+      perPage: 0,
+      hasMore: false,
+      headers: {},
     },
-  );
+  });
 
   const fetchedEras = data?.data ?? [];
   const eras = useMemo(() => {
@@ -270,7 +268,7 @@ export function ErasCrud({ initialEras = [] }: ErasCrudProps) {
         throw new Error(data.error ?? "Request failed");
       }
 
-      const { era: saved } = (await res.json()) as { era: IEra };
+      const { era: saved } = (await res.json()) as { era: LocalizedEra };
       await mutate(
         (current) => {
           const previous = current?.data ?? [];
@@ -566,7 +564,7 @@ export function ErasCrud({ initialEras = [] }: ErasCrudProps) {
                     </span>
 
                     <span className="font-rajdhani text-sm text-foreground/80 truncate">
-                      {lget(era.name, "en")}
+                      {lget(era.name, apiLocale)}
                     </span>
 
                     <span className="font-mono text-[11px] text-foreground/45 whitespace-nowrap">
@@ -577,7 +575,7 @@ export function ErasCrud({ initialEras = [] }: ErasCrudProps) {
                     </span>
 
                     <span className="font-mono text-[11px] text-foreground/45 truncate uppercase">
-                      {lget(era.shortName, "en")}
+                      {lget(era.shortName, apiLocale)}
                     </span>
 
                     {/* Actions */}

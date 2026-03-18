@@ -51,6 +51,16 @@ export interface IEra {
   updatedAt?: Date;
 }
 
+/**
+ * IEra with LocalizedString fields reduced to a single string.
+ * This is the shape returned by withAqp when a `locale` param is passed.
+ */
+export type LocalizedEra = Omit<IEra, "name" | "shortName" | "description"> & {
+  name: string;
+  shortName: string;
+  description: string;
+};
+
 // ── Event ─────────────────────────────────────────────────────────────────────
 export interface IEvent {
   readonly _id: Types.ObjectId;
