@@ -18,9 +18,9 @@ export default function LoginPageClient() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background p-4 text-foreground lg:p-8">
+    <div className="flex items-center justify-center bg-background p-4 text-foreground lg:p-8">
       {/* Global outer frame — vertical divider "crosses" it */}
-      <div className="relative flex min-h-[calc(100vh-2rem)] w-full overflow-hidden border border-primary/20 lg:min-h-[calc(100vh-4rem)]">
+      <div className="relative flex min-h-[calc(100vh-65px-2rem)] w-full overflow-hidden border border-primary/20 lg:min-h-[calc(100vh-65px-4rem)]">
         {/* Global corner decorations */}
         <div className="pointer-events-none absolute left-0 top-0 z-20 h-8 w-8 border-l-2 border-t-2 border-primary/60" />
         <div className="pointer-events-none absolute right-0 top-0 z-20 h-8 w-8 border-r-2 border-t-2 border-primary/60" />

@@ -47,11 +47,11 @@ interface NavItem {
   label: string;
 }
 
-interface TronHeaderProps {
+interface HeaderProps {
   navItems?: NavItem[];
 }
 
-export function TronHeader({ navItems }: TronHeaderProps) {
+export function Header({ navItems }: HeaderProps) {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
 

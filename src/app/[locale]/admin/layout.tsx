@@ -1,5 +1,4 @@
 import { setRequestLocale } from "next-intl/server";
-import { TronHeader } from "@/components/layout";
 
 export default async function AdminLayout({
   children,
@@ -12,8 +11,7 @@ export default async function AdminLayout({
 
   setRequestLocale(locale);
   return (
-    <div className="flex min-h-screen flex-col bg-background">
-      <TronHeader />
+    <div className="flex flex-col bg-background">
       <div className="flex-1">{children}</div>
     </div>
   );

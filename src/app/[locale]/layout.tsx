@@ -6,7 +6,7 @@ import { setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { ThemeProvider } from "@/components/theme";
 import { AuthProvider } from "@/components/layout/auth-provider";
-import { AdminFloatPanel } from "@/components/layout";
+import { AdminFloatPanel, Header } from "@/components/layout";
 import { Toaster } from "@/components/ui/sonner";
 import { Analytics } from "@vercel/analytics/next";
 import { routing } from "@/i18n/routing";
@@ -202,7 +202,8 @@ export default async function LocaleLayout({
         <NextIntlClientProvider>
           <AuthProvider>
             <ThemeProvider>
-              {children}
+              <Header />
+              <div className="min-h-[calc(100vh-65px)]">{children}</div>
               <AdminFloatPanel />
               <Toaster
                 position="bottom-right"

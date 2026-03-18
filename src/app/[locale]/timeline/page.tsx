@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { TronHeader } from "@/components/layout";
+
 import { ScTimeline } from "./sc-timeline";
 import dbConnect from "@/lib/dbConnect";
 import EraModel from "@/models/ScEra";
@@ -62,7 +62,7 @@ export default async function TimelinePage({
   const serializedEras: IEra[] = JSON.parse(JSON.stringify(eras));
 
   return (
-    <div className="flex min-h-screen flex-col bg-background">
+    <div className="flex flex-col bg-background">
       {/* 3D grid background — fixed, same as homepage */}
       <div className="pointer-events-none fixed inset-0 z-0">
         <Grid3D className="h-full w-full" cameraAnimation />
@@ -73,7 +73,6 @@ export default async function TimelinePage({
       <GridMap />
       <GridScanOverlay />
 
-      <TronHeader />
       <ScTimeline eras={serializedEras} events={events} />
     </div>
   );

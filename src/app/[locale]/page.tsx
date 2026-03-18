@@ -23,7 +23,7 @@ import {
   DossierCard,
   GridMap,
 } from "@/components/website";
-import { TronHeader, TheGridcnLogo } from "@/components/layout";
+import { TheGridcnLogo } from "@/components/layout";
 
 // Dynamic import for Three.js components (client-side only)
 const Grid3D = dynamic(
@@ -95,7 +95,7 @@ export default function HomePage() {
   const currentTheme = themeById.get(theme);
 
   return (
-    <div className="relative min-h-screen bg-background">
+    <div className="relative bg-background">
       {/* 3D Background */}
       <div className="pointer-events-none fixed inset-0 z-0">
         <Grid3D
@@ -106,9 +106,6 @@ export default function HomePage() {
         />
         <div className="absolute inset-0 bg-gradient-to-b from-background/20 via-background/50 to-background" />
       </div>
-
-      {/* Header */}
-      <TronHeader />
 
       {/* Main content */}
       <main className="relative z-10">
