@@ -1,54 +1,34 @@
-import type { MetadataRoute } from "next"
+import type { MetadataRoute } from "next";
+
+const BASE_URL = "https://thegridcn.com";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
+    // English (default, no prefix)
     {
-      url: "https://thegridcn.com",
+      url: BASE_URL,
       lastModified: new Date(),
       changeFrequency: "weekly",
       priority: 1,
     },
     {
-      url: "https://thegridcn.com/components",
+      url: `${BASE_URL}/timeline`,
       lastModified: new Date(),
       changeFrequency: "weekly",
       priority: 0.8,
     },
+    // French (localized pathnames)
     {
-      url: "https://thegridcn.com/templates",
+      url: `${BASE_URL}/fr`,
       lastModified: new Date(),
-      changeFrequency: "monthly",
+      changeFrequency: "weekly",
+      priority: 0.9,
+    },
+    {
+      url: `${BASE_URL}/fr/chronologie`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
       priority: 0.7,
     },
-    {
-      url: "https://thegridcn.com/templates/dashboard",
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.6,
-    },
-    {
-      url: "https://thegridcn.com/templates/landing",
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.6,
-    },
-    {
-      url: "https://thegridcn.com/templates/blog",
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.6,
-    },
-    {
-      url: "https://thegridcn.com/templates/login",
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.6,
-    },
-    {
-      url: "https://thegridcn.com/templates/analytics",
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.6,
-    },
-  ]
+  ];
 }
