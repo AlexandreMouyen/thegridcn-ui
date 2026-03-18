@@ -6,7 +6,7 @@ export const GLOSSARY_TAGS = {
   LOCATION: "LOCATION",
   FACTION: "FACTION",
   PERSON: "PERSON",
-  SHIP: "SHIP",
+  SPACECRAFT: "SPACECRAFT",
   TECHNOLOGY: "TECHNOLOGY",
   SPECIES: "SPECIES",
   MILITARY: "MILITARY",
@@ -14,6 +14,7 @@ export const GLOSSARY_TAGS = {
   HISTORY: "HISTORY",
   ECONOMY: "ECONOMY",
   CULTURE: "CULTURE",
+  HUMAN: "HUMAN",
 } as const;
 
 export type GlossaryTag = (typeof GLOSSARY_TAGS)[keyof typeof GLOSSARY_TAGS];

@@ -51,12 +51,12 @@ const TAG_OPTIONS = Object.values(GLOSSARY_TAGS).map((t) => ({
   label: t,
 }));
 
-const TAG_COLORS: Record<string, string> = {
+const TAG_COLORS: Record<keyof typeof GLOSSARY_TAGS, string> = {
   SYSTEM: "border-cyan-500/40 bg-cyan-500/10 text-cyan-400",
   LOCATION: "border-sky-500/40 bg-sky-500/10 text-sky-400",
   FACTION: "border-violet-500/40 bg-violet-500/10 text-violet-400",
   PERSON: "border-amber-500/40 bg-amber-500/10 text-amber-400",
-  SHIP: "border-emerald-500/40 bg-emerald-500/10 text-emerald-400",
+  SPACECRAFT: "border-emerald-500/40 bg-emerald-500/10 text-emerald-400",
   TECHNOLOGY: "border-blue-500/40 bg-blue-500/10 text-blue-400",
   SPECIES: "border-lime-500/40 bg-lime-500/10 text-lime-400",
   MILITARY: "border-red-500/40 bg-red-500/10 text-red-400",
@@ -64,9 +64,10 @@ const TAG_COLORS: Record<string, string> = {
   HISTORY: "border-yellow-500/40 bg-yellow-500/10 text-yellow-400",
   ECONOMY: "border-teal-500/40 bg-teal-500/10 text-teal-400",
   CULTURE: "border-pink-500/40 bg-pink-500/10 text-pink-400",
+  HUMAN: "border-indigo-500/40 bg-indigo-500/10 text-indigo-400",
 };
 
-function TagBadge({ tag }: { tag: string }) {
+function TagBadge({ tag }: { tag: GlossaryTag }) {
   return (
     <span
       className={cn(
