@@ -4,13 +4,17 @@ import * as React from "react";
 import { useSession, signOut } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { LogOut, Clock, Shield } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { UserRoleBadge } from "./user-role-badge";
 import { USER_ROLES, UserRole } from "@/types/user";
 
+const PUBLIC_PATHS = ["/", "/timeline", "/fr", "/fr/chronologie"];
+
 export function HeaderAuthSection() {
   const { data: session, status } = useSession();
+  const pathname = usePathname();
   const [open, setOpen] = React.useState(false);
   const dropdownRef = React.useRef<HTMLDivElement>(null);
 
@@ -40,7 +44,7 @@ export function HeaderAuthSection() {
   if (!session) {
     return (
       <a
-        href="/login"
+        href={`/login?callbackUrl=${encodeURIComponent(pathname)}`}
         className="flex items-center gap-1.5 rounded border border-primary/30 bg-primary/5 px-3 py-1.5 font-mono text-xs tracking-widest text-primary transition-colors hover:border-primary/60 hover:bg-primary/10"
       >
         LOGIN
@@ -177,7 +181,9 @@ export function HeaderAuthSection() {
             <button
               onClick={() => {
                 setOpen(false);
-                signOut({ callbackUrl: "/" });
+                signOut({
+                  callbackUrl: PUBLIC_PATHS.includes(pathname) ? pathname : "/",
+                });
               }}
               className="flex w-full items-center gap-3 px-4 py-2.5 font-mono text-xs tracking-wider text-foreground/70 transition-colors hover:bg-primary/5 hover:text-primary"
             >
