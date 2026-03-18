@@ -7,18 +7,12 @@ import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { selectableThemes, useTheme } from "@/components/theme";
 
-import { GridScanOverlay, UplinkHeader } from "@/components/thegridcn";
+import { UplinkHeader } from "@/components/thegridcn";
 import { type IEra, type IEvent, type LocalizedString } from "@/types/timeline";
-import { GridMap } from "@/components/website";
 import { RichContent } from "@/components/ui/glossary";
 
 const GodAvatar3D = dynamic(
   () => import("@/components/website/god-avatar").then((m) => m.GodAvatar3D),
-  { ssr: false },
-);
-
-const Grid3D = dynamic(
-  () => import("@/components/thegridcn/grid").then((m) => m.Grid3D),
   { ssr: false },
 );
 
@@ -29,11 +23,11 @@ const TAG_CONFIG: Record<string, { cls: string; label: string }> = {
     label: "Military",
   },
   CONFLICT: {
-    cls: "border-red-500/30    bg-red-500/10    text-red-400",
+    cls: "border-orange-500/30 bg-orange-500/10 text-orange-400",
     label: "Conflict",
   },
   TRAGEDY: {
-    cls: "border-red-500/30    bg-red-500/10    text-red-400",
+    cls: "border-rose-500/30   bg-rose-500/10   text-rose-400",
     label: "Tragedy",
   },
   POLITICAL: {
@@ -41,7 +35,7 @@ const TAG_CONFIG: Record<string, { cls: string; label: string }> = {
     label: "Political",
   },
   CULTURE: {
-    cls: "border-amber-500/30  bg-amber-500/10  text-amber-400",
+    cls: "border-yellow-500/30 bg-yellow-500/10 text-yellow-400",
     label: "Culture",
   },
   EXPLORATION: {
@@ -49,27 +43,27 @@ const TAG_CONFIG: Record<string, { cls: string; label: string }> = {
     label: "Exploration",
   },
   DIPLOMACY: {
-    cls: "border-emerald-500/30 bg-emerald-500/10 text-emerald-400",
+    cls: "border-teal-500/30   bg-teal-500/10   text-teal-400",
     label: "Diplomacy",
   },
   CIVILIZATION: {
-    cls: "border-primary/30    bg-primary/10    text-primary",
+    cls: "border-violet-500/30 bg-violet-500/10 text-violet-400",
     label: "Civilization",
   },
   TECHNOLOGY: {
-    cls: "border-primary/30    bg-primary/10    text-primary",
+    cls: "border-sky-500/30    bg-sky-500/10    text-sky-400",
     label: "Technology",
   },
   HISTORY: {
-    cls: "border-foreground/20 bg-foreground/5  text-foreground/50",
+    cls: "border-pink-400/30  bg-pink-400/10  text-pink-400",
     label: "History",
   },
   RELIGION: {
-    cls: "border-foreground/20 bg-foreground/5  text-foreground/50",
+    cls: "border-purple-500/30 bg-purple-500/10 text-purple-400",
     label: "Religion",
   },
   ARCHEOLOGY: {
-    cls: "border-foreground/20 bg-foreground/5  text-foreground/50",
+    cls: "border-lime-500/30   bg-lime-500/10   text-lime-400",
     label: "Archeology",
   },
 };
