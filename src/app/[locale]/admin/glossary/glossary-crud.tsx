@@ -173,7 +173,6 @@ export function GlossaryCrud() {
 
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
-  const [queryLocale, setQueryLocale] = useState<"auto" | LocaleCode>("auto");
   const [sort, setSort] = useState("slug");
   const [tagFilter, setTagFilter] = useState<string[]>([]);
 
@@ -192,12 +191,7 @@ export function GlossaryCrud() {
     return () => clearTimeout(timeout);
   }, [query]);
 
-  const apiLocale: LocaleCode =
-    queryLocale === "auto"
-      ? currentLocale === "fr"
-        ? "fr"
-        : "en"
-      : queryLocale;
+  const apiLocale: LocaleCode = currentLocale === "fr" ? "fr" : "en";
 
   const listUrl = useMemo(() => {
     const params = new URLSearchParams();
@@ -390,7 +384,7 @@ export function GlossaryCrud() {
         {/* ── Search + filters ─────────────────────────────────────────────── */}
         <div className="border border-border/35 bg-card/30 rounded-sm px-4 py-3 space-y-2">
           <div className="grid gap-3 md:grid-cols-12 md:items-end">
-            <div className="md:col-span-4">
+            <div className="md:col-span-5">
               <p className="font-mono text-[9px] uppercase tracking-widest text-foreground/40 mb-1">
                 Atlas Search
               </p>
@@ -402,23 +396,7 @@ export function GlossaryCrud() {
               />
             </div>
 
-            <div className="md:col-span-2">
-              <Select
-                label="Locale"
-                value={queryLocale}
-                onChange={(v) => setQueryLocale(v as "auto" | LocaleCode)}
-                options={[
-                  {
-                    value: "auto",
-                    label: `Auto (${currentLocale.toUpperCase()})`,
-                  },
-                  { value: "en", label: "EN" },
-                  { value: "fr", label: "FR" },
-                ]}
-              />
-            </div>
-
-            <div className="md:col-span-2">
+            <div className="md:col-span-3">
               <Select
                 label="Sort"
                 value={sort}
@@ -491,11 +469,11 @@ export function GlossaryCrud() {
                       "hover:bg-primary/[0.03] transition-colors",
                     )}
                   >
-                    <span className="font-mono text-[10px] text-foreground/30">
-                      {idx + 1}
+                    <span className="font-mono text-xs text-foreground/35">
+                      {(idx + 1).toString().padStart(2, "0")}
                     </span>
 
-                    <span className="font-mono text-xs text-foreground/60 truncate">
+                    <span className="font-mono text-xs text-primary/75 truncate">
                       {t.slug}
                     </span>
 

@@ -5,7 +5,12 @@ import { useFormatter, useLocale } from "next-intl";
 import useSWR from "swr";
 import { toast } from "sonner";
 import { Plus, Pencil, Trash2, Loader2, Layers } from "lucide-react";
-import { NumberInput, TextInput, SearchInput } from "@/components/thegridcn";
+import {
+  NumberInput,
+  TextInput,
+  SearchInput,
+  Select,
+} from "@/components/thegridcn";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -153,7 +158,6 @@ export function ErasCrud({ initialEras = [] }: ErasCrudProps) {
 
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
-  const [queryLocale, setQueryLocale] = useState<"auto" | LocaleCode>("auto");
   const [sort, setSort] = useState("startYear");
   const [fromYear, setFromYear] = useState("");
   const [toYear, setToYear] = useState("");
@@ -173,12 +177,7 @@ export function ErasCrud({ initialEras = [] }: ErasCrudProps) {
     return () => clearTimeout(timeout);
   }, [query]);
 
-  const apiLocale: LocaleCode =
-    queryLocale === "auto"
-      ? currentLocale === "fr"
-        ? "fr"
-        : "en"
-      : queryLocale;
+  const apiLocale: LocaleCode = currentLocale === "fr" ? "fr" : "en";
 
   const erasUrl = useMemo(() => {
     const params = new URLSearchParams();
@@ -202,18 +201,18 @@ export function ErasCrud({ initialEras = [] }: ErasCrudProps) {
     },
   });
 
-  const fetchedEras = data?.data ?? [];
   const eras = useMemo(() => {
+    const fetched = data?.data ?? [];
     const min = fromYear.trim() ? Number(fromYear) : null;
     const max = toYear.trim() ? Number(toYear) : null;
 
-    return fetchedEras.filter((era) => {
+    return fetched.filter((era) => {
       if (ongoingOnly && era.endYear !== null) return false;
       if (min !== null && era.startYear < min) return false;
       if (max !== null && era.startYear > max) return false;
       return true;
     });
-  }, [fetchedEras, fromYear, toYear, ongoingOnly]);
+  }, [data, fromYear, toYear, ongoingOnly]);
 
   function openCreate() {
     setEditingSlug(null);
@@ -413,53 +412,34 @@ export function ErasCrud({ initialEras = [] }: ErasCrudProps) {
               />
             </div>
 
-            <div className="md:col-span-2 space-y-1">
-              <p className="font-mono text-[9px] uppercase tracking-widest text-foreground/40">
-                Locale
-              </p>
-              <select
-                value={queryLocale}
-                onChange={(e) =>
-                  setQueryLocale(e.target.value as "auto" | LocaleCode)
-                }
-                className="w-full rounded border border-primary/20 bg-card/60 px-3 py-2 font-mono text-xs text-foreground/80 outline-none focus:border-primary/40"
-              >
-                <option value="auto">
-                  Auto ({currentLocale.toUpperCase()})
-                </option>
-                <option value="en">EN</option>
-                <option value="fr">FR</option>
-              </select>
-            </div>
-
-            <div className="md:col-span-2 space-y-1">
-              <p className="font-mono text-[9px] uppercase tracking-widest text-foreground/40">
-                Sort
-              </p>
-              <select
+            <div className="md:col-span-3">
+              <Select
+                label="Sort"
                 value={sort}
-                onChange={(e) => setSort(e.target.value)}
-                className="w-full rounded border border-primary/20 bg-card/60 px-3 py-2 font-mono text-xs text-foreground/80 outline-none focus:border-primary/40"
-              >
-                <option value="startYear">Start Year ↑</option>
-                <option value="-startYear">Start Year ↓</option>
-                <option value="slug">Slug ↑</option>
-                <option value="-slug">Slug ↓</option>
-              </select>
+                onChange={setSort}
+                options={[
+                  { value: "startYear", label: "Start Year ↑" },
+                  { value: "-startYear", label: "Start Year ↓" },
+                  { value: "slug", label: "Slug ↑" },
+                  { value: "-slug", label: "Slug ↓" },
+                ]}
+              />
             </div>
 
-            <div className="md:col-span-3 grid grid-cols-[1fr_1fr_auto] gap-2 items-end">
-              <TextInput
+            <div className="md:col-span-4 grid grid-cols-[1fr_1fr_auto] gap-2 items-end">
+              <NumberInput
                 label="From Year"
-                value={fromYear}
-                onChange={(e) => setFromYear(e.target.value)}
-                placeholder="2500"
+                value={fromYear ? Number(fromYear) : 0}
+                step={100}
+                min={0}
+                onChange={(v) => setFromYear(v > 0 ? String(v) : "")}
               />
-              <TextInput
+              <NumberInput
                 label="To Year"
-                value={toYear}
-                onChange={(e) => setToYear(e.target.value)}
-                placeholder="3000"
+                value={toYear ? Number(toYear) : 0}
+                step={100}
+                min={0}
+                onChange={(v) => setToYear(v > 0 ? String(v) : "")}
               />
               <label className="h-9 inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-foreground/55">
                 <Checkbox
