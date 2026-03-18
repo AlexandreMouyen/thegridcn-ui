@@ -26,7 +26,7 @@ export default async function ErasAdminPage({
   const serialized = JSON.parse(JSON.stringify(eras)) as IEra[];
 
   return (
-    <main className="flex-1 mx-auto w-full max-w-5xl px-4 py-10">
+    <main className="flex-1 mx-auto w-full max-w-7xl px-4 py-10">
       {/* 3D grid background — fixed, same as homepage */}
       <div className="pointer-events-none fixed inset-0 z-0">
         <Grid3D className="h-full w-full" cameraAnimation />

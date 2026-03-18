@@ -2,21 +2,12 @@
 
 import { useState } from "react";
 import { useFormatter } from "next-intl";
-import dynamic from "next/dynamic";
 import { toast } from "sonner";
 import { Plus, Pencil, Trash2, Loader2, Layers } from "lucide-react";
-import {
-  GridScanOverlay,
-  NumberInput,
-  TextInput,
-} from "@/components/thegridcn";
+import { NumberInput, TextInput } from "@/components/thegridcn";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 
-const Grid3D = dynamic(
-  () => import("@/components/thegridcn/grid").then((m) => m.Grid3D),
-  { ssr: false },
-);
 import {
   Dialog,
   DialogContent,
@@ -37,7 +28,6 @@ import {
 } from "@/components/ui/alert-dialog";
 import { cn } from "@/lib/utils";
 import type { IEra } from "@/types/timeline";
-import { GridMap } from "@/components/website/movie-ui";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
