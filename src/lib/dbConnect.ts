@@ -1,4 +1,5 @@
 import mongoose, { Mongoose } from "mongoose";
+import { env } from "@/config/env";
 
 type Cached = {
   conn: Mongoose | null;
@@ -14,7 +15,7 @@ let cached = global.mongoose;
 if (!cached) cached = global.mongoose = { conn: null, promise: null };
 
 async function dbConnect() {
-  const MONGODB_URI = process.env.MONGODB_URI!;
+  const MONGODB_URI = env.mongodb.uri;
 
   if (!MONGODB_URI)
     throw new Error(

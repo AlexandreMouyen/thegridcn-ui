@@ -114,7 +114,6 @@ export { AgentAvatar } from "./agent-avatar";
 
 // Game
 export { LightCycleGame } from "./light-cycle-game";
-export { Leaderboard } from "./leaderboard";
 export { AliasInput } from "./alias-input";
 
 // Code

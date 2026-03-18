@@ -1,6 +1,7 @@
 import GitHub from "next-auth/providers/github";
 import DiscordProvider from "next-auth/providers/discord";
 import type { NextAuthConfig } from "next-auth";
+import { env } from "@/config/env";
 import dbConnect from "@/lib/dbConnect";
 import User from "@/models/User";
 import { IUser, USER_ROLES } from "@/types/user";
@@ -8,8 +9,8 @@ import { IUser, USER_ROLES } from "@/types/user";
 export default {
   providers: [
     DiscordProvider({
-      clientId: process.env.DISCORD_CLIENT_ID ?? "",
-      clientSecret: process.env.DISCORD_CLIENT_SECRET ?? "",
+      clientId: env.auth.discord.clientId,
+      clientSecret: env.auth.discord.clientSecret,
       allowDangerousEmailAccountLinking: true,
     }),
     GitHub({ allowDangerousEmailAccountLinking: true }),
