@@ -43,7 +43,7 @@ Themes use CSS variables via `data-theme` attribute on `<html>`. Theme state per
 - **Dynamic imports for 3D**: Three.js components must use `dynamic(() => import(...), { ssr: false })` to avoid SSR issues
 - **Path alias**: `@/*` maps to `./src/*`
 - **Component styling**: Uses Class Variance Authority (cva) patterns from shadcn/ui
-- **Mongoose models**: Interface defined explicitly in `src/types/<model>.ts`, schema+model in `src/models/<Model>.ts`. See skill `.agents/skills/typescript-mongoose/SKILL.md`
+- **Mongoose models**: Interface defined explicitly in `src/types/<model>.ts`, schema+model in `src/models/<Model>.ts`. Register `withAqp` as a static for GET list routes — route handler is always a one-liner `return Model.withAqp(req)`. Text search weights defined in the schema text index; `withAqp` introspects them automatically. See skill `.agents/skills/typescript-mongoose/SKILL.md`
 - **Number/date formatting**: Always use `useFormatter` (client) or `getFormatter` (server) from `next-intl` — never `toLocaleString` or `Intl.*` directly. See skill `.agents/skills/next-intl-formatting/SKILL.md`
 - **setRequestLocale**: Every async Server Component (page and layout) under `src/app/[locale]/` must call `setRequestLocale(locale)` — the layout's call does NOT propagate. See skill `.agents/skills/next-intl-request-locale/SKILL.md`
 

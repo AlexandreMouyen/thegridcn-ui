@@ -4,10 +4,11 @@ import { IEvent, EVENT_TAGS, EVENT_SIGNIFICANCE } from "@/types/timeline";
 import { withAqp, AqpOptions } from "@/lib/mongoose";
 
 interface IEventModel extends Model<IEvent> {
+  withAqp(req: NextRequest, options?: AqpOptions): Promise<Response>;
   withAqp(
     req: NextRequest,
-    options?: AqpOptions,
-  ): ReturnType<typeof withAqp<IEvent>>;
+    options: AqpOptions & { raw: true },
+  ): Promise<[IEvent[], Record<string, string>]>;
 }
 
 const LocalizedStringSchema = { type: Map, of: String, required: true };

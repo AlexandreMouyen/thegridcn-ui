@@ -2,12 +2,12 @@ import mongoose, { Model } from "mongoose";
 import { NextRequest } from "next/server";
 import { IEra } from "@/types/timeline";
 import { withAqp, AqpOptions } from "@/lib/mongoose";
-
 interface IEraModel extends Model<IEra> {
+  withAqp(req: NextRequest, options?: AqpOptions): Promise<Response>;
   withAqp(
     req: NextRequest,
-    options?: AqpOptions,
-  ): ReturnType<typeof withAqp<IEra>>;
+    options: AqpOptions & { raw: true },
+  ): Promise<[IEra[], Record<string, string>]>;
 }
 
 // Reusable sub-schema: any locale key → string value.
@@ -24,6 +24,29 @@ const EraSchema = new mongoose.Schema<IEra>(
     description: LocalizedStringSchema,
   },
   { timestamps: true },
+);
+
+EraSchema.index(
+  {
+    slug: "text",
+    "name.en": "text",
+    "name.fr": "text",
+    "shortName.en": "text",
+    "shortName.fr": "text",
+    "description.en": "text",
+    "description.fr": "text",
+  },
+  {
+    weights: {
+      slug: 10,
+      "name.en": 5,
+      "name.fr": 5,
+      "shortName.en": 4,
+      "shortName.fr": 4,
+      "description.en": 1,
+      "description.fr": 1,
+    },
+  },
 );
 
 EraSchema.static("withAqp", withAqp);

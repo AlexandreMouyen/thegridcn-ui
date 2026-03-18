@@ -42,9 +42,16 @@ export type AqpOptions = {
    */
   consumeLocale?: boolean;
   /**
-   * MongoDB Atlas Search paths for full-text `q=` queries.
+   * Optional explicit Atlas Search paths.
+   * If omitted, paths are inferred from keys of `searchWeights`.
    */
   searchPaths?: string[];
+  /**
+   * Optional Atlas Search scoring boost by path.
+   * Example: { slug: 8, "name.en": 3 }
+   * If omitted, `withAqp` reads from model schema option `searchWeights`.
+   */
+  searchWeights?: Record<string, number>;
   /**
    * When true, return the raw `[items, headers]` tuple instead of a
    * NextResponse. Useful for server-side callers that need to further
@@ -56,11 +63,39 @@ export type AqpOptions = {
 const defaultOptions: Required<AqpOptions> = {
   consumeLocale: true,
   searchPaths: [],
+  searchWeights: {},
   raw: false,
 };
 
 // Maximum edit distance for Atlas Search autocomplete fuzzy matching.
 const MAX_FUZZY_EDITS = 1;
+
+function getSchemaTextSearchWeights(schema: {
+  indexes: () => Array<[Record<string, unknown>, Record<string, unknown>]>;
+}): Record<string, number> {
+  const indexes = schema.indexes();
+
+  for (const [spec, options] of indexes) {
+    const textKeys = Object.entries(spec)
+      .filter(([, val]) => val === "text")
+      .map(([key]) => key);
+
+    if (!textKeys.length) continue;
+
+    const configuredWeights =
+      (options?.weights as Record<string, number> | undefined) ?? {};
+
+    return textKeys.reduce(
+      (acc, key) => {
+        acc[key] = configuredWeights[key] ?? 1;
+        return acc;
+      },
+      {} as Record<string, number>,
+    );
+  }
+
+  return {};
+}
 
 // ── Locale reduction ──────────────────────────────────────────────────────────
 
@@ -71,19 +106,13 @@ const MAX_FUZZY_EDITS = 1;
  */
 function isTranslatableModel(schemaObj: object): boolean {
   return Object.values(schemaObj as Record<string, unknown>).some((value) => {
-    if (
-      value !== null &&
-      typeof value === "object" &&
-      "type" in (value as object)
-    ) {
-      const t = (value as { type: unknown }).type;
-      return (
-        t !== null &&
-        typeof t === "object" &&
-        locales.every((locale) => locale in (t as object))
-      );
-    }
-    return false;
+    if (value === null || typeof value !== "object") return false;
+    if (!("type" in value)) return false;
+
+    // In this repo, localized fields are modeled as: { type: Map, of: String }
+    // and serialized as plain objects after .lean().
+    const field = value as { type?: unknown; of?: unknown };
+    return field.type === Map && field.of === String;
   });
 }
 
@@ -150,7 +179,26 @@ export async function withAqp<
   | NextResponse<TLocalized[] | TDoc[] | JSONErrorResponse>
   | [TDoc[] | TLocalized[], Record<string, string>]
 > {
-  const { consumeLocale, searchPaths } = { ...defaultOptions, ...options };
+  const { consumeLocale, searchPaths, searchWeights } = {
+    ...defaultOptions,
+    ...options,
+  };
+
+  const schemaSearchWeights = getSchemaTextSearchWeights(
+    this.schema as unknown as {
+      indexes: () => Array<[Record<string, unknown>, Record<string, unknown>]>;
+    },
+  );
+
+  const effectiveSearchWeights =
+    Object.keys(searchWeights).length > 0 ? searchWeights : schemaSearchWeights;
+
+  const effectiveSearchPaths =
+    searchPaths.length > 0
+      ? searchPaths
+      : Object.keys(effectiveSearchWeights).length > 0
+        ? Object.keys(effectiveSearchWeights)
+        : [];
 
   try {
     await dbConnect();
@@ -204,26 +252,93 @@ export async function withAqp<
     if (consumeLocale && "locale" in filter) delete filter.locale;
 
     // ── Data fetching ─────────────────────────────────────────────────────────
-    let items: TDoc[];
+    let items: TDoc[] = [];
+    let queryFilterForCount: Record<string, unknown> | null = null;
 
-    if (query && searchPaths.length) {
-      // Atlas Search — fuzzy autocomplete across specified paths.
-      items = await this.aggregate<TDoc>([
-        {
-          $search: {
-            index: "default",
-            compound: {
-              should: searchPaths.map((path) => ({
-                autocomplete: {
-                  query,
-                  path,
-                  fuzzy: { maxEdits: MAX_FUZZY_EDITS },
-                },
-              })),
+    if (query && effectiveSearchPaths.length) {
+      const aggregateSort = ((sort as unknown as Record<string, 1 | -1>) || {
+        _id: 1,
+      }) as Record<string, 1 | -1>;
+
+      const runFallbackSearch = async () => {
+        const runRegexFallback = async () => {
+          const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+          const regex = new RegExp(escaped, "i");
+          const searchablePaths = effectiveSearchPaths.map((path) => ({
+            [path]: regex,
+          }));
+          queryFilterForCount = {
+            ...filter,
+            $or: searchablePaths,
+          };
+          items = (await this.find(queryFilterForCount)
+            .skip(skip)
+            .limit(limit)
+            .sort(sort as Record<string, SortOrder>)
+            .select(projection)
+            .populate(population)
+            .lean()) as TDoc[];
+        };
+
+        // First try Mongo text index. If index is missing OR returns no hits,
+        // fallback to regex to keep search intuitive for stop words.
+        try {
+          queryFilterForCount = { ...filter, $text: { $search: query } };
+          items = (await this.find(queryFilterForCount)
+            .skip(skip)
+            .limit(limit)
+            .sort(sort as Record<string, SortOrder>)
+            .select(projection)
+            .populate(population)
+            .lean()) as TDoc[];
+
+          if (!items.length) {
+            await runRegexFallback();
+          }
+        } catch {
+          await runRegexFallback();
+        }
+      };
+
+      try {
+        // Atlas Search — fuzzy autocomplete across specified paths.
+        items = await this.aggregate<TDoc>([
+          {
+            $search: {
+              index: "default",
+              compound: {
+                should: effectiveSearchPaths.map((path) => {
+                  const weight = effectiveSearchWeights[path];
+
+                  return {
+                    autocomplete: {
+                      query,
+                      path,
+                      fuzzy: { maxEdits: MAX_FUZZY_EDITS },
+                    },
+                    ...(typeof weight === "number" && weight > 0
+                      ? { score: { boost: { value: weight } } }
+                      : {}),
+                  };
+                }),
+              },
             },
           },
-        },
-      ]);
+          { $match: filter },
+          { $sort: aggregateSort },
+          ...(typeof skip === "number" && skip > 0 ? [{ $skip: skip }] : []),
+          ...(typeof limit === "number" && limit > 0
+            ? [{ $limit: limit }]
+            : []),
+        ]);
+
+        // Atlas can return 0 results without throwing (e.g. analyzer mismatch).
+        // In that case still try text/regex fallback to keep search usable.
+        if (!items.length) await runFallbackSearch();
+      } catch {
+        // Atlas index unavailable or query operator error.
+        await runFallbackSearch();
+      }
     } else {
       items = (await this.find(filter)
         .skip(skip)
@@ -234,8 +349,9 @@ export async function withAqp<
         .lean()) as TDoc[];
     }
 
-    const totalCount =
-      query && searchPaths.length
+    const totalCount = queryFilterForCount
+      ? await this.countDocuments(queryFilterForCount)
+      : query && effectiveSearchPaths.length
         ? items.length
         : await this.countDocuments(filter);
 

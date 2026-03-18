@@ -1,12 +1,14 @@
 "use client";
 
-import { useState } from "react";
-import { useFormatter } from "next-intl";
+import { useEffect, useMemo, useState } from "react";
+import { useFormatter, useLocale } from "next-intl";
+import useSWR from "swr";
 import { toast } from "sonner";
 import { Plus, Pencil, Trash2, Loader2, Layers } from "lucide-react";
-import { NumberInput, TextInput } from "@/components/thegridcn";
+import { NumberInput, TextInput, SearchInput } from "@/components/thegridcn";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 
 import {
   Dialog,
@@ -27,6 +29,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { cn } from "@/lib/utils";
+import { fetcher, FetchedData } from "@/lib/fetcher";
 import type { IEra } from "@/types/timeline";
 
 // ── Types ────────────────────────────────────────────────────────────────────
@@ -59,8 +62,12 @@ const EMPTY_FORM: EraFormData = {
 
 /** Safely read a locale key from a Mongoose Map (plain object after JSON serialization) */
 function lget(val: unknown, locale: string): string {
+  if (typeof val === "string") return val;
   if (!val || typeof val !== "object") return "";
-  return (val as Record<string, string>)[locale] ?? "";
+
+  const localized = val as Record<string, string>;
+
+  return localized[locale] ?? localized.en ?? Object.values(localized)[0] ?? "";
 }
 
 function eraToForm(era: IEra): EraFormData {
@@ -137,12 +144,21 @@ function FieldLabel({ children }: { children: React.ReactNode }) {
 // ── Main Component ───────────────────────────────────────────────────────────
 
 export interface ErasCrudProps {
-  initialEras: IEra[];
+  initialEras?: IEra[];
 }
 
-export function ErasCrud({ initialEras }: ErasCrudProps) {
+export function ErasCrud({ initialEras = [] }: ErasCrudProps) {
   const format = useFormatter();
-  const [eras, setEras] = useState<IEra[]>(initialEras);
+  const currentLocale = useLocale() as LocaleCode;
+
+  const [query, setQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
+  const [queryLocale, setQueryLocale] = useState<"auto" | LocaleCode>("auto");
+  const [sort, setSort] = useState("startYear");
+  const [fromYear, setFromYear] = useState("");
+  const [toYear, setToYear] = useState("");
+  const [ongoingOnly, setOngoingOnly] = useState(false);
+
   const [formOpen, setFormOpen] = useState(false);
   const [deleteSlug, setDeleteSlug] = useState<string | null>(null);
   const [editingSlug, setEditingSlug] = useState<string | null>(null);
@@ -152,6 +168,55 @@ export function ErasCrud({ initialEras }: ErasCrudProps) {
 
   const isCreate = editingSlug === null;
 
+  useEffect(() => {
+    const timeout = setTimeout(() => setDebouncedQuery(query.trim()), 350);
+    return () => clearTimeout(timeout);
+  }, [query]);
+
+  const apiLocale: LocaleCode =
+    queryLocale === "auto"
+      ? currentLocale === "fr"
+        ? "fr"
+        : "en"
+      : queryLocale;
+
+  const erasUrl = useMemo(() => {
+    const params = new URLSearchParams();
+    params.set("locale", apiLocale);
+    params.set("sort", sort);
+    if (debouncedQuery) params.set("q", debouncedQuery);
+    return `/api/timeline/eras?${params.toString()}`;
+  }, [apiLocale, sort, debouncedQuery]);
+
+  const { data, error, isLoading, mutate } = useSWR<FetchedData<IEra[]>>(
+    erasUrl,
+    fetcher,
+    {
+      keepPreviousData: true,
+      fallbackData: {
+        data: initialEras,
+        totalCount: initialEras.length,
+        page: 1,
+        perPage: 0,
+        hasMore: false,
+        headers: {},
+      },
+    },
+  );
+
+  const fetchedEras = data?.data ?? [];
+  const eras = useMemo(() => {
+    const min = fromYear.trim() ? Number(fromYear) : null;
+    const max = toYear.trim() ? Number(toYear) : null;
+
+    return fetchedEras.filter((era) => {
+      if (ongoingOnly && era.endYear !== null) return false;
+      if (min !== null && era.startYear < min) return false;
+      if (max !== null && era.startYear > max) return false;
+      return true;
+    });
+  }, [fetchedEras, fromYear, toYear, ongoingOnly]);
+
   function openCreate() {
     setEditingSlug(null);
     setForm(EMPTY_FORM);
@@ -159,11 +224,21 @@ export function ErasCrud({ initialEras }: ErasCrudProps) {
     setFormOpen(true);
   }
 
-  function openEdit(era: IEra) {
-    setEditingSlug(era.slug);
-    setForm(eraToForm(era));
-    setFormLocale("en");
-    setFormOpen(true);
+  async function openEdit(slug: string) {
+    try {
+      const res = await fetch(`/api/timeline/eras/${slug}`);
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error ?? "Failed to load era");
+      }
+      const { era } = (await res.json()) as { era: IEra };
+      setEditingSlug(era.slug);
+      setForm(eraToForm(era));
+      setFormLocale("en");
+      setFormOpen(true);
+    } catch (e: unknown) {
+      toast.error(e instanceof Error ? e.message : "Failed to load era");
+    }
   }
 
   function setField(key: keyof EraFormData, value: string) {
@@ -195,12 +270,26 @@ export function ErasCrud({ initialEras }: ErasCrudProps) {
         throw new Error(data.error ?? "Request failed");
       }
 
-      const { era: saved } = await res.json();
-      setEras((prev) =>
-        (isCreate
-          ? [...prev, saved]
-          : prev.map((e) => (e.slug === editingSlug ? saved : e))
-        ).sort((a, b) => a.startYear - b.startYear),
+      const { era: saved } = (await res.json()) as { era: IEra };
+      await mutate(
+        (current) => {
+          const previous = current?.data ?? [];
+          const next = (
+            isCreate
+              ? [...previous, saved]
+              : previous.map((e) => (e.slug === editingSlug ? saved : e))
+          ).sort((a, b) => a.startYear - b.startYear);
+
+          return {
+            data: next,
+            totalCount: next.length,
+            page: 1,
+            perPage: 0,
+            hasMore: false,
+            headers: current?.headers ?? {},
+          };
+        },
+        { revalidate: false },
       );
       toast.success(isCreate ? "Era created" : "Era updated");
       setFormOpen(false);
@@ -223,7 +312,21 @@ export function ErasCrud({ initialEras }: ErasCrudProps) {
         const data = await res.json();
         throw new Error(data.error ?? "Delete failed");
       }
-      setEras((prev) => prev.filter((e) => e.slug !== slug));
+      await mutate(
+        (current) => {
+          const previous = current?.data ?? [];
+          const next = previous.filter((e) => e.slug !== slug);
+          return {
+            data: next,
+            totalCount: next.length,
+            page: 1,
+            perPage: 0,
+            hasMore: false,
+            headers: current?.headers ?? {},
+          };
+        },
+        { revalidate: false },
+      );
       toast.success(`Era "${slug}" deleted`);
     } catch (e: unknown) {
       toast.error(e instanceof Error ? e.message : "Delete failed");
@@ -297,6 +400,88 @@ export function ErasCrud({ initialEras }: ErasCrudProps) {
           ))}
         </div>
 
+        {/* ── Search + filters ────────────────────────────────────────────── */}
+        <div className="border border-border/35 bg-card/30 rounded-sm px-4 py-3 space-y-2">
+          <div className="grid gap-3 md:grid-cols-12 md:items-end">
+            <div className="md:col-span-5">
+              <p className="font-mono text-[9px] uppercase tracking-widest text-foreground/40 mb-1">
+                Atlas Search
+              </p>
+              <SearchInput
+                value={query}
+                onChange={setQuery}
+                placeholder="Search slug, name, short name, description..."
+                loading={isLoading}
+              />
+            </div>
+
+            <div className="md:col-span-2 space-y-1">
+              <p className="font-mono text-[9px] uppercase tracking-widest text-foreground/40">
+                Locale
+              </p>
+              <select
+                value={queryLocale}
+                onChange={(e) =>
+                  setQueryLocale(e.target.value as "auto" | LocaleCode)
+                }
+                className="w-full rounded border border-primary/20 bg-card/60 px-3 py-2 font-mono text-xs text-foreground/80 outline-none focus:border-primary/40"
+              >
+                <option value="auto">
+                  Auto ({currentLocale.toUpperCase()})
+                </option>
+                <option value="en">EN</option>
+                <option value="fr">FR</option>
+              </select>
+            </div>
+
+            <div className="md:col-span-2 space-y-1">
+              <p className="font-mono text-[9px] uppercase tracking-widest text-foreground/40">
+                Sort
+              </p>
+              <select
+                value={sort}
+                onChange={(e) => setSort(e.target.value)}
+                className="w-full rounded border border-primary/20 bg-card/60 px-3 py-2 font-mono text-xs text-foreground/80 outline-none focus:border-primary/40"
+              >
+                <option value="startYear">Start Year ↑</option>
+                <option value="-startYear">Start Year ↓</option>
+                <option value="slug">Slug ↑</option>
+                <option value="-slug">Slug ↓</option>
+              </select>
+            </div>
+
+            <div className="md:col-span-3 grid grid-cols-[1fr_1fr_auto] gap-2 items-end">
+              <TextInput
+                label="From Year"
+                value={fromYear}
+                onChange={(e) => setFromYear(e.target.value)}
+                placeholder="2500"
+              />
+              <TextInput
+                label="To Year"
+                value={toYear}
+                onChange={(e) => setToYear(e.target.value)}
+                placeholder="3000"
+              />
+              <label className="h-9 inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-foreground/55">
+                <Checkbox
+                  checked={ongoingOnly}
+                  onCheckedChange={(checked) =>
+                    setOngoingOnly(checked === true)
+                  }
+                  className="h-3.5 w-3.5"
+                />
+                Ongoing
+              </label>
+            </div>
+          </div>
+
+          <p className="font-mono text-[9px] uppercase tracking-widest text-foreground/30">
+            Search uses Atlas index when available, with automatic Mongo
+            text-index fallback.
+          </p>
+        </div>
+
         {/* ── Table ────────────────────────────────────────────────────────── */}
         <div className="relative border border-border/40 bg-card/20 rounded-sm overflow-hidden">
           <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
@@ -305,24 +490,47 @@ export function ErasCrud({ initialEras }: ErasCrudProps) {
           <div className="overflow-x-auto">
             <div className="min-w-[640px]">
               <div className="grid grid-cols-[3rem_1fr_1fr_11rem_8rem_6rem] gap-4 px-5 py-2.5 bg-card/60 border-b border-border/30">
-                {["#", "SLUG", "NAME (EN)", "YEARS", "SHORT NAME", ""].map(
-                  (h) => (
-                    <span
-                      key={h}
-                      className="font-mono text-[9px] uppercase tracking-widest text-foreground/35"
-                    >
-                      {h}
-                    </span>
-                  ),
-                )}
+                {["#", "SLUG", "NAME", "YEARS", "SHORT NAME", ""].map((h) => (
+                  <span
+                    key={h}
+                    className="font-mono text-[9px] uppercase tracking-widest text-foreground/35"
+                  >
+                    {h}
+                  </span>
+                ))}
               </div>
 
               {/* Empty state */}
-              {eras.length === 0 && (
+              {isLoading && (
+                <div className="flex flex-col items-center justify-center py-16 gap-3">
+                  <Loader2 className="h-6 w-6 text-primary/40 animate-spin" />
+                  <p className="font-mono text-[10px] uppercase tracking-widest text-foreground/35">
+                    Loading eras...
+                  </p>
+                </div>
+              )}
+
+              {!isLoading && error && (
+                <div className="flex flex-col items-center justify-center py-16 gap-3">
+                  <p className="font-mono text-[10px] uppercase tracking-widest text-destructive/80">
+                    Failed to fetch eras
+                  </p>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => void mutate()}
+                    className="font-mono text-[10px] uppercase tracking-widest"
+                  >
+                    Retry
+                  </Button>
+                </div>
+              )}
+
+              {!isLoading && !error && eras.length === 0 && (
                 <div className="flex flex-col items-center justify-center py-20 gap-3">
                   <Layers className="h-8 w-8 text-foreground/15" />
                   <p className="font-mono text-[10px] uppercase tracking-widest text-foreground/25">
-                    No eras found
+                    No eras found for current search/filters
                   </p>
                   <Button
                     variant="outline"
@@ -336,63 +544,65 @@ export function ErasCrud({ initialEras }: ErasCrudProps) {
               )}
 
               {/* Rows */}
-              {eras.map((era, i) => (
-                <div
-                  key={era.slug}
-                  className={cn(
-                    "grid grid-cols-[3rem_1fr_1fr_11rem_8rem_6rem] gap-4 px-5 py-3 items-center",
-                    "transition-colors duration-150 group",
-                    "border-b border-border/15 last:border-0",
-                    i % 2 !== 0 && "bg-foreground/[0.018]",
-                    "hover:bg-primary/5",
-                  )}
-                >
-                  <span className="font-mono text-xs text-foreground/35">
-                    {(i + 1).toString().padStart(2, "0")}
-                  </span>
+              {!isLoading &&
+                !error &&
+                eras.map((era, i) => (
+                  <div
+                    key={era.slug}
+                    className={cn(
+                      "grid grid-cols-[3rem_1fr_1fr_11rem_8rem_6rem] gap-4 px-5 py-3 items-center",
+                      "transition-colors duration-150 group",
+                      "border-b border-border/15 last:border-0",
+                      i % 2 !== 0 && "bg-foreground/[0.018]",
+                      "hover:bg-primary/5",
+                    )}
+                  >
+                    <span className="font-mono text-xs text-foreground/35">
+                      {(i + 1).toString().padStart(2, "0")}
+                    </span>
 
-                  <span className="font-mono text-xs text-primary/75 truncate">
-                    {era.slug}
-                  </span>
+                    <span className="font-mono text-xs text-primary/75 truncate">
+                      {era.slug}
+                    </span>
 
-                  <span className="font-rajdhani text-sm text-foreground/80 truncate">
-                    {lget(era.name, "en")}
-                  </span>
+                    <span className="font-rajdhani text-sm text-foreground/80 truncate">
+                      {lget(era.name, "en")}
+                    </span>
 
-                  <span className="font-mono text-[11px] text-foreground/45 whitespace-nowrap">
-                    {format.number(era.startYear)} SE
-                    {era.endYear != null
-                      ? ` – ${format.number(era.endYear)} SE`
-                      : " – Present"}
-                  </span>
+                    <span className="font-mono text-[11px] text-foreground/45 whitespace-nowrap">
+                      {format.number(era.startYear)} SE
+                      {era.endYear != null
+                        ? ` – ${format.number(era.endYear)} SE`
+                        : " – Present"}
+                    </span>
 
-                  <span className="font-mono text-[11px] text-foreground/45 truncate uppercase">
-                    {lget(era.shortName, "en")}
-                  </span>
+                    <span className="font-mono text-[11px] text-foreground/45 truncate uppercase">
+                      {lget(era.shortName, "en")}
+                    </span>
 
-                  {/* Actions */}
-                  <div className="flex items-center justify-end gap-1">
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      onClick={() => openEdit(era)}
-                      aria-label={`Edit ${era.slug}`}
-                      className="opacity-0 group-hover:opacity-100 transition-opacity text-foreground/40 hover:text-primary hover:bg-primary/10"
-                    >
-                      <Pencil className="h-3.5 w-3.5" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      onClick={() => setDeleteSlug(era.slug)}
-                      aria-label={`Delete ${era.slug}`}
-                      className="opacity-0 group-hover:opacity-100 transition-opacity text-foreground/40 hover:text-destructive hover:bg-destructive/10"
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </Button>
+                    {/* Actions */}
+                    <div className="flex items-center justify-end gap-1">
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        onClick={() => openEdit(era.slug)}
+                        aria-label={`Edit ${era.slug}`}
+                        className="opacity-0 group-hover:opacity-100 transition-opacity text-foreground/40 hover:text-primary hover:bg-primary/10"
+                      >
+                        <Pencil className="h-3.5 w-3.5" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        onClick={() => setDeleteSlug(era.slug)}
+                        aria-label={`Delete ${era.slug}`}
+                        className="opacity-0 group-hover:opacity-100 transition-opacity text-foreground/40 hover:text-destructive hover:bg-destructive/10"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
             </div>
           </div>
 
@@ -552,7 +762,7 @@ export function ErasCrud({ initialEras }: ErasCrudProps) {
                       ? "A brief description of this era in English..."
                       : "Une brève description de cette ère en français..."
                   }
-                  className="font-rajdhani text-sm min-h-20 resize-y"
+                  className="font-rajdhani text-sm min-h-40 resize-y"
                 />
               </div>
             </div>
