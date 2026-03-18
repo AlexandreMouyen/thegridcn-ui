@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
     await dbConnect();
 
     const body = await req.json();
-    const { slug, term, definition, category } = body;
+    const { slug, term, definition, tags } = body;
 
     if (!slug || !term || !definition) {
       return NextResponse.json(
@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
       slug,
       term,
       definition,
-      category: category || null,
+      tags: Array.isArray(tags) ? tags : [],
     });
 
     return NextResponse.json({ term: glossaryTerm }, { status: 201 });

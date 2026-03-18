@@ -42,7 +42,7 @@ export const ROLES = {
     eras: { view: true, create: true, edit: true, delete: true },
     events: { view: true, create: true, edit: true, delete: true },
     users: { view: true, create: true, edit: true, delete: true },
-    glossaryterms: { view: true, create: true, edit: true, delete: true },
+    "glossary-terms": { view: true, create: true, edit: true, delete: true },
   },
 } as const satisfies RolesWithPermissions;
 

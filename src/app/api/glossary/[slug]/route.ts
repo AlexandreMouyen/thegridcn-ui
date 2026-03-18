@@ -30,11 +30,11 @@ export async function PUT(req: NextRequest, { params }: Params) {
     await dbConnect();
     const { slug } = await params;
     const body = await req.json();
-    const { term, definition, category } = body;
+    const { term, definition, tags } = body;
 
     const updated = await GlossaryModel.findOneAndUpdate(
       { slug },
-      { $set: { term, definition, category: category || null } },
+      { $set: { term, definition, tags: Array.isArray(tags) ? tags : [] } },
       { new: true, runValidators: true },
     ).lean();
 

@@ -13,7 +13,7 @@ import {
   Eye,
   EyeOff,
 } from "lucide-react";
-import { TextInput, SearchInput } from "@/components/thegridcn";
+import { TextInput, SearchInput, Select } from "@/components/thegridcn";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -34,10 +34,50 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { TagsCombobox } from "@/components/ui/tags-combobox";
 import { cn } from "@/lib/utils";
 import { fetcher, FetchedData } from "@/lib/fetcher";
-import type { IGlossaryTerm } from "@/types/glossary";
+import {
+  GLOSSARY_TAGS,
+  type IGlossaryTerm,
+  type GlossaryTag,
+} from "@/types/glossary";
 import { GlossaryContent } from "@/components/ui/glossary";
+
+// ── Tag options & colors ──────────────────────────────────────────────────────
+
+const TAG_OPTIONS = Object.values(GLOSSARY_TAGS).map((t) => ({
+  value: t,
+  label: t,
+}));
+
+const TAG_COLORS: Record<string, string> = {
+  SYSTEM: "border-cyan-500/40 bg-cyan-500/10 text-cyan-400",
+  LOCATION: "border-sky-500/40 bg-sky-500/10 text-sky-400",
+  FACTION: "border-violet-500/40 bg-violet-500/10 text-violet-400",
+  PERSON: "border-amber-500/40 bg-amber-500/10 text-amber-400",
+  SHIP: "border-emerald-500/40 bg-emerald-500/10 text-emerald-400",
+  TECHNOLOGY: "border-blue-500/40 bg-blue-500/10 text-blue-400",
+  SPECIES: "border-lime-500/40 bg-lime-500/10 text-lime-400",
+  MILITARY: "border-red-500/40 bg-red-500/10 text-red-400",
+  LEGISLATION: "border-orange-500/40 bg-orange-500/10 text-orange-400",
+  HISTORY: "border-yellow-500/40 bg-yellow-500/10 text-yellow-400",
+  ECONOMY: "border-teal-500/40 bg-teal-500/10 text-teal-400",
+  CULTURE: "border-pink-500/40 bg-pink-500/10 text-pink-400",
+};
+
+function TagBadge({ tag }: { tag: string }) {
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center rounded border px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-widest",
+        TAG_COLORS[tag] ?? "border-primary/30 bg-primary/10 text-primary",
+      )}
+    >
+      {tag}
+    </span>
+  );
+}
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -47,7 +87,7 @@ interface GlossaryFormData {
   term_fr: string;
   definition_en: string;
   definition_fr: string;
-  category: string;
+  tags: GlossaryTag[];
 }
 
 const EMPTY_FORM: GlossaryFormData = {
@@ -56,7 +96,7 @@ const EMPTY_FORM: GlossaryFormData = {
   term_fr: "",
   definition_en: "",
   definition_fr: "",
-  category: "",
+  tags: [],
 };
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -75,7 +115,7 @@ function termToForm(t: IGlossaryTerm): GlossaryFormData {
     term_fr: lget(t.term, "fr"),
     definition_en: lget(t.definition, "en"),
     definition_fr: lget(t.definition, "fr"),
-    category: t.category ?? "",
+    tags: t.tags ?? [],
   };
 }
 
@@ -86,12 +126,7 @@ function formToPayload(form: GlossaryFormData) {
   const definition: Record<string, string> = { en: form.definition_en.trim() };
   if (form.definition_fr.trim()) definition.fr = form.definition_fr.trim();
 
-  return {
-    slug: form.slug.trim(),
-    term,
-    definition,
-    category: form.category.trim() || null,
-  };
+  return { slug: form.slug.trim(), term, definition, tags: form.tags };
 }
 
 function validate(form: GlossaryFormData, isCreate: boolean): string | null {
@@ -140,7 +175,7 @@ export function GlossaryCrud() {
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [queryLocale, setQueryLocale] = useState<"auto" | LocaleCode>("auto");
   const [sort, setSort] = useState("slug");
-  const [categoryFilter, setCategoryFilter] = useState("");
+  const [tagFilter, setTagFilter] = useState<string[]>([]);
 
   const [formOpen, setFormOpen] = useState(false);
   const [deleteSlug, setDeleteSlug] = useState<string | null>(null);
@@ -179,19 +214,16 @@ export function GlossaryCrud() {
   const fetchedTerms = useMemo(() => data?.data ?? [], [data]);
 
   const terms = useMemo(() => {
-    if (!categoryFilter.trim()) return fetchedTerms;
-    const f = categoryFilter.trim().toLowerCase();
+    if (tagFilter.length === 0) return fetchedTerms;
     return fetchedTerms.filter((t) =>
-      (t.category ?? "").toLowerCase().includes(f),
+      tagFilter.every((tag) => (t.tags ?? []).includes(tag as GlossaryTag)),
     );
-  }, [fetchedTerms, categoryFilter]);
+  }, [fetchedTerms, tagFilter]);
 
-  const categories = useMemo(() => {
+  const usedTags = useMemo(() => {
     const set = new Set<string>();
-    fetchedTerms.forEach((t) => {
-      if (t.category) set.add(t.category);
-    });
-    return Array.from(set).sort();
+    fetchedTerms.forEach((t) => (t.tags ?? []).forEach((tag) => set.add(tag)));
+    return set.size;
   }, [fetchedTerms]);
 
   function openCreate() {
@@ -220,9 +252,12 @@ export function GlossaryCrud() {
     }
   }
 
-  const setField = useCallback((key: keyof GlossaryFormData, value: string) => {
-    setForm((prev) => ({ ...prev, [key]: value }));
-  }, []);
+  const setField = useCallback(
+    <K extends keyof GlossaryFormData>(key: K, value: GlossaryFormData[K]) => {
+      setForm((prev) => ({ ...prev, [key]: value }));
+    },
+    [],
+  );
 
   async function handleSave() {
     const err = validate(form, isCreate);
@@ -328,8 +363,8 @@ export function GlossaryCrud() {
               value: String(terms.length),
             },
             {
-              label: "Categories",
-              value: String(categories.length),
+              label: "Tags In Use",
+              value: String(usedTags),
             },
             {
               label: "Status",
@@ -355,61 +390,55 @@ export function GlossaryCrud() {
         {/* ── Search + filters ─────────────────────────────────────────────── */}
         <div className="border border-border/35 bg-card/30 rounded-sm px-4 py-3 space-y-2">
           <div className="grid gap-3 md:grid-cols-12 md:items-end">
-            <div className="md:col-span-5">
+            <div className="md:col-span-4">
               <p className="font-mono text-[9px] uppercase tracking-widest text-foreground/40 mb-1">
                 Atlas Search
               </p>
               <SearchInput
                 value={query}
                 onChange={setQuery}
-                placeholder="Search slug, term, definition, category…"
+                placeholder="Search slug, term, definition…"
                 loading={isLoading}
               />
             </div>
 
-            <div className="md:col-span-2 space-y-1">
-              <p className="font-mono text-[9px] uppercase tracking-widest text-foreground/40">
-                Locale
-              </p>
-              <select
+            <div className="md:col-span-2">
+              <Select
+                label="Locale"
                 value={queryLocale}
-                onChange={(e) =>
-                  setQueryLocale(e.target.value as "auto" | LocaleCode)
-                }
-                className="w-full rounded border border-primary/20 bg-card/60 px-3 py-2 font-mono text-xs text-foreground/80 outline-none focus:border-primary/40"
-              >
-                <option value="auto">
-                  Auto ({currentLocale.toUpperCase()})
-                </option>
-                <option value="en">EN</option>
-                <option value="fr">FR</option>
-              </select>
+                onChange={(v) => setQueryLocale(v as "auto" | LocaleCode)}
+                options={[
+                  {
+                    value: "auto",
+                    label: `Auto (${currentLocale.toUpperCase()})`,
+                  },
+                  { value: "en", label: "EN" },
+                  { value: "fr", label: "FR" },
+                ]}
+              />
             </div>
 
-            <div className="md:col-span-2 space-y-1">
-              <p className="font-mono text-[9px] uppercase tracking-widest text-foreground/40">
-                Sort
-              </p>
-              <select
+            <div className="md:col-span-2">
+              <Select
+                label="Sort"
                 value={sort}
-                onChange={(e) => setSort(e.target.value)}
-                className="w-full rounded border border-primary/20 bg-card/60 px-3 py-2 font-mono text-xs text-foreground/80 outline-none focus:border-primary/40"
-              >
-                <option value="slug">Slug ↑</option>
-                <option value="-slug">Slug ↓</option>
-                <option value="term">Term ↑</option>
-                <option value="-term">Term ↓</option>
-              </select>
+                onChange={setSort}
+                options={[
+                  { value: "slug", label: "Slug ↑" },
+                  { value: "-slug", label: "Slug ↓" },
+                  { value: "term", label: "Term ↑" },
+                  { value: "-term", label: "Term ↓" },
+                ]}
+              />
             </div>
 
-            <div className="md:col-span-3 space-y-1">
-              <p className="font-mono text-[9px] uppercase tracking-widest text-foreground/40">
-                Category Filter
-              </p>
-              <TextInput
-                value={categoryFilter}
-                onChange={(e) => setCategoryFilter(e.target.value)}
-                placeholder="Filter by category…"
+            <div className="md:col-span-4">
+              <TagsCombobox
+                label="Filter by Tags"
+                options={TAG_OPTIONS}
+                value={tagFilter}
+                onChange={setTagFilter}
+                placeholder="All tags…"
               />
             </div>
           </div>
@@ -427,8 +456,8 @@ export function GlossaryCrud() {
           <div className="overflow-x-auto">
             <div className="min-w-[640px]">
               {/* Header */}
-              <div className="grid grid-cols-[3rem_1fr_1fr_8rem_6rem] gap-4 px-5 py-2.5 bg-card/60 border-b border-border/30">
-                {["#", "SLUG", "TERM", "CATEGORY", ""].map((h) => (
+              <div className="grid grid-cols-[3rem_1fr_1fr_12rem_6rem] gap-4 px-5 py-2.5 bg-card/60 border-b border-border/30">
+                {["#", "SLUG", "TERM", "TAGS", ""].map((h) => (
                   <span
                     key={h}
                     className="font-mono text-[9px] uppercase tracking-widest text-foreground/35"
@@ -458,7 +487,7 @@ export function GlossaryCrud() {
                   <div
                     key={t.slug}
                     className={cn(
-                      "grid grid-cols-[3rem_1fr_1fr_8rem_6rem] gap-4 px-5 py-3 border-b border-border/20 items-center",
+                      "grid grid-cols-[3rem_1fr_1fr_12rem_6rem] gap-4 px-5 py-3 border-b border-border/20 items-center",
                       "hover:bg-primary/[0.03] transition-colors",
                     )}
                   >
@@ -479,9 +508,17 @@ export function GlossaryCrud() {
                       </p>
                     </div>
 
-                    <span className="font-mono text-[10px] text-foreground/40 truncate">
-                      {t.category ?? "—"}
-                    </span>
+                    <div className="flex flex-wrap gap-1">
+                      {(t.tags ?? []).length === 0 ? (
+                        <span className="font-mono text-[10px] text-foreground/25">
+                          —
+                        </span>
+                      ) : (
+                        (t.tags ?? []).map((tag) => (
+                          <TagBadge key={tag} tag={tag} />
+                        ))
+                      )}
+                    </div>
 
                     <div className="flex items-center justify-end gap-1">
                       <button
@@ -537,13 +574,14 @@ export function GlossaryCrud() {
               </div>
             )}
 
-            {/* Category */}
+            {/* Tags */}
             <div>
-              <FieldLabel>Category</FieldLabel>
-              <TextInput
-                value={form.category}
-                onChange={(e) => setField("category", e.target.value)}
-                placeholder="system, faction, person, technology…"
+              <FieldLabel>Tags</FieldLabel>
+              <TagsCombobox
+                options={TAG_OPTIONS}
+                value={form.tags}
+                onChange={(tags) => setField("tags", tags as GlossaryTag[])}
+                placeholder="Select tags…"
               />
             </div>
 

@@ -1,12 +1,29 @@
 import { Types } from "mongoose";
 import { LocalizedString } from "./timeline";
 
+export const GLOSSARY_TAGS = {
+  SYSTEM: "SYSTEM",
+  LOCATION: "LOCATION",
+  FACTION: "FACTION",
+  PERSON: "PERSON",
+  SHIP: "SHIP",
+  TECHNOLOGY: "TECHNOLOGY",
+  SPECIES: "SPECIES",
+  MILITARY: "MILITARY",
+  LEGISLATION: "LEGISLATION",
+  HISTORY: "HISTORY",
+  ECONOMY: "ECONOMY",
+  CULTURE: "CULTURE",
+} as const;
+
+export type GlossaryTag = (typeof GLOSSARY_TAGS)[keyof typeof GLOSSARY_TAGS];
+
 export interface IGlossaryTerm {
   readonly _id: Types.ObjectId;
   slug: string;
   term: LocalizedString;
   definition: LocalizedString;
-  category?: string;
+  tags: GlossaryTag[];
   createdAt?: Date;
   updatedAt?: Date;
 }

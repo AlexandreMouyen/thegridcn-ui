@@ -20,7 +20,7 @@ export type Permissions = {
     dataType: IUser;
     action: "view" | "create" | "edit" | "delete";
   };
-  glossaryterms: {
+  "glossary-terms": {
     dataType: IGlossaryTerm;
     action: "view" | "create" | "edit" | "delete";
   };
