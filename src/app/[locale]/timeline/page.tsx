@@ -46,7 +46,7 @@ export default async function TimelinePage({
   // Fetch both collections, then sort events by era order → event order in JS
   // (avoids alphabetical-eraSlug sort producing wrong chronological sequence)
   const [eras, rawEvents] = await Promise.all([
-    EraModel.find({}).sort({ order: 1 }).lean<IEra[]>(),
+    EraModel.find({}).sort({ startYear: 1 }).lean<IEra[]>(),
     EventModel.find({}).lean<IEvent[]>(),
   ]);
 
@@ -54,7 +54,9 @@ export default async function TimelinePage({
   const sortedEvents = [...rawEvents].sort((a, b) => {
     const eraA = eraOrderMap.get(a.eraSlug) ?? 999;
     const eraB = eraOrderMap.get(b.eraSlug) ?? 999;
-    return eraA !== eraB ? eraA - eraB : (a.order ?? 0) - (b.order ?? 0);
+    return eraA !== eraB
+      ? eraA - eraB
+      : (a.date.year ?? 0) - (b.date.year ?? 0);
   });
 
   // Serialize Mongoose lean docs: ObjectId → string, Date → ISO string

@@ -193,7 +193,7 @@
   "notFound": {
     "signal": "[ SIGNAL PERDU ]",
     "title": "404",
-    "message": "Ce secteur n'existe pas sur La Grille",
+    "message": "Ce secteur n'existe pas dans le Verse",
     "returnHome": "Retour à l'accueil",
     "browseComponents": "Parcourir les Composants"
   },

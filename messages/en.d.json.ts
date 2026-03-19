@@ -196,7 +196,7 @@ declare const messages: {
   "notFound": {
     "signal": "[ SIGNAL LOST ]",
     "title": "404",
-    "message": "This sector does not exist on The Grid",
+    "message": "This sector does not exist in the Verse",
     "returnHome": "Return Home",
     "browseComponents": "Browse Components"
   },

@@ -114,7 +114,6 @@ export const SEED_EVENTS: SeedEvent[] = [
       fr: `<p>Dans un modeste campus de développement à l'extérieur de Denver, l'ingénieur Wallace Muhammed et l'entrepreneur Nathan Warrick fondent Roberts Space Industries — une entreprise aérospatiale privée avec la vision singulière de repousser les limites de l'humanité dans le cosmos.</p>
 <p>D'abord axée sur le déploiement de satellites commerciaux, RSI pivote rapidement vers la recherche en propulsion expérimentale. Leurs premiers prototypes de propulseur quantique, bien que rudimentaires selon les normes ultérieures, représentent le premier investissement civil sérieux dans le voyage spatial post-conventionnel. La devise de l'entreprise — <strong>"Atteignez les étoiles"</strong> — s'avère être bien plus qu'une simple aspiration d'entreprise.</p>`,
     },
-    order: 0,
   },
   {
     slug: "first-quantum-drive",
@@ -132,7 +131,6 @@ export const SEED_EVENTS: SeedEvent[] = [
       fr: `<p>Le propulseur quantique Mark I de RSI subit son premier test complet réussi à bord de l'<em>UEES Artemis</em> en orbite basse terrestre. Le propulseur atteint 0,2c — un cinquième de la vitesse de la lumière — un bond de plusieurs ordres de grandeur au-delà de tout système de propulsion antérieur.</p>
 <p>La démonstration remodèle les priorités d'investissement mondiales du jour au lendemain. La NASA, restructurée en Agence spatiale unifiée de la Terre (UESA) dix ans auparavant, contracte RSI pour fournir des propulseurs quantiques pour une nouvelle flotte d'exploration nationale. L'ère du confinement humain au système solaire est déclarée terminée.</p>`,
     },
-    order: 1,
   },
   {
     slug: "first-jump-point",
@@ -151,7 +149,6 @@ export const SEED_EVENTS: SeedEvent[] = [
       fr: `<p>Le vaisseau d'exploration <em>ISS Perses</em>, envoyé pour cataloguer des lectures gravitationnelles anormales près de l'orbite externe de Saturne, découvre quelque chose qui redéfinira la place de l'humanité dans l'univers : un point de saut stable et traversable menant à un tout nouveau système stellaire.</p>
 <p>Les scientifiques désignent la destination comme le Système Davien. La découverte déclenche immédiatement un débat théorique — les points de saut sont-ils des phénomènes naturels ou la preuve d'une ingénierie intelligente antérieure ? Aucun consensus n'émerge, mais il est certain que l'humanité dispose désormais d'une porte vers la galaxie.</p>`,
     },
-    order: 2,
   },
   {
     slug: "banu-first-contact",
@@ -170,7 +167,6 @@ export const SEED_EVENTS: SeedEvent[] = [
       fr: `<p>Près du bord extérieur du Système Davien, le pilote explorateur Vernon Tar — effectuant une mission standard de relevé de ressources — rencontre un vaisseau marchand Banu. L'instinct de Tar d'émettre un signal de salutation non menaçant plutôt que d'activer les systèmes défensifs est largement reconnu comme l'une des décisions individuelles les plus importantes de l'histoire humaine.</p>
 <p>La communication initiale, menée par échange de symboles improvisés, établit une intention mutuelle. Les gouvernements terrestres se hâtent de constituer une équipe diplomatique. Les Banu, une espèce de marchands intensément individualistes organisés autour d'une structure de Protectorat, ne montrent aucune hostilité — seulement une curiosité commerciale.</p>`,
     },
-    order: 3,
   },
   {
     slug: "xian-first-contact",
@@ -189,7 +185,6 @@ export const SEED_EVENTS: SeedEvent[] = [
       fr: `<p>Contrairement à la rencontre Banu, le premier contact avec l'Empire Xi'An se déroule sous la forme d'une série d'escarmouches frontalières tendues plutôt que d'échanges diplomatiques. Les vaisseaux de patrouille Xi'An répondent aux navires d'exploration humains entrant dans la Ligne Perry par des tirs d'armes. Trois éclaireurs humains sont détruits ; deux vaisseaux Xi'An sont endommagés en retour.</p>
 <p>Aucun camp ne déclare la guerre. Les deux parties envoient simultanément des flottes militaires à la frontière et des vaisseaux diplomatiques dans l'espace neutre.</p>`,
     },
-    order: 4,
   },
   {
     slug: "managed-democracy-reform",
@@ -207,7 +202,6 @@ export const SEED_EVENTS: SeedEvent[] = [
       fr: `<p>Face à l'impossibilité logistique d'une démocratie représentative sur des dizaines de systèmes habités avec des années de délai de communication à la vitesse de la lumière, les Planètes Unies de la Terre subissent leur réforme constitutionnelle la plus significative depuis leur fondation. Le projet de loi sur la Démocratie Encadrée du sénateur Assan Kieren est adopté à courte majorité.</p>
 <p>Le nouveau système centralise le pouvoir exécutif dans un Imperator élu tout en maintenant un Sénat à surveillance limitée. Les critiques le qualifient immédiatement de dérive autoritaire ; les partisans soutiennent que c'est une nécessité pragmatique pour gouverner une civilisation interstellaire.</p>`,
     },
-    order: 5,
   },
   // ── FIRST TEVARIN WAR ───────────────────────────────────────────────────
   {
@@ -226,7 +220,6 @@ export const SEED_EVENTS: SeedEvent[] = [
       fr: `<p>Une série de sondes non habitées s'aventure dans un corridor de saut jusque-là inexploré et revient avec des images d'une civilisation extraterrestre développée. Le monde natal Tevarin, désigné Kaleeth, est une planète à l'architecture géométrique frappante et à l'infrastructure militaire indéniable.</p>
 <p>Contrairement à la rencontre Banu, il n'y a aucune ambiguïté sur la nature des Tevarins : ce sont une espèce guerrière dont les premières émissions interceptées se composent presque entièrement de signaux de revendication territoriale.</p>`,
     },
-    order: 0,
   },
   {
     slug: "first-tevarin-war-start",
@@ -244,7 +237,6 @@ export const SEED_EVENTS: SeedEvent[] = [
       fr: `<p>Sans déclaration formelle, les flottes de guerre Tevarin traversent le Système Orion, détruisant deux stations coloniales et un transport civil transportant 4 200 passagers. La brutalité de l'assaut — analysée plus tard comme une déclaration de guerre rituelle dans la culture martiale Tevarin — choque le Sénat UPE qui se réunit en session d'urgence.</p>
 <p>L'officier junior de flotte Ivar Messer se distingue dans la défense d'Orion II, recevant une décoration pour avoir tenu un périmètre défensif avec la moitié de l'équipage face au double des forces Tevarin attendues.</p>`,
     },
-    order: 1,
   },
   {
     slug: "battle-idris-iv",
@@ -262,7 +254,6 @@ export const SEED_EVENTS: SeedEvent[] = [
       fr: `<p>L'engagement décisif de la Première Guerre Tevarin. Une flotte Tevarin de plus de trois cents vaisseaux effectue une incursion surprise dans le Système Idris, ciblant le complexe de chantiers navals critiques de la planète. L'amiral de flotte Ernst Bishop engage quarante-sept navires de guerre UPE dans ce qui devient une bataille de six jours à travers le dense champ d'astéroïdes du système.</p>
 <p>La flotte UPE en infériorité numérique détruit ou désactive 212 vaisseaux Tevarins et force un retrait complet. Les pertes humaines s'élèvent à 12 000 lors de l'engagement de la flotte.</p>`,
     },
-    order: 2,
   },
   {
     slug: "messer-first-citizen",
@@ -280,7 +271,6 @@ export const SEED_EVENTS: SeedEvent[] = [
       fr: `<p>Alors que les Tevarins sont militairement vaincus mais que le spectre d'un conflit renouvelé plane, le Sénat invoque les dispositions d'urgence en temps de guerre pour élever l'amiral de flotte Ivar Messer au rang de "Premier Citoyen" — une position exécutive théoriquement temporaire avec de larges pouvoirs d'urgence.</p>
 <p>Sa nomination est célébrée dans les rues de dizaines de systèmes. Peu réalisent qu'ils viennent d'assister à la mort de la gouvernance civile démocratique. Les pouvoirs d'urgence ne seront jamais abandonnés. L'Ère Messer a commencé — non par un coup d'État, mais par des applaudissements.</p>`,
     },
-    order: 3,
   },
   // ── MESSER ERA ──────────────────────────────────────────────────────────
   {
@@ -299,7 +289,6 @@ export const SEED_EVENTS: SeedEvent[] = [
       fr: `<p>Dans les mois suivant sa nomination comme Premier Citoyen, Ivar Messer manœuvre à travers un Sénat complaisant pour faire renommer définitivement son titre en "Imperator" et consacrer constitutionnellement ses pouvoirs. Cette décision marque la transformation formelle des Planètes Unies de la Terre en <strong>Empire Uni de la Terre (UEE)</strong>.</p>
 <p>Le nouveau titre confère des droits de succession héréditaire. Les sénateurs dissidents qui ont parlé contre la mesure se retrouvent confrontés à des accusations de corruption dans l'année. Un schéma de répression politique est établi qui s'intensifiera au cours des deux siècles suivants.</p>`,
     },
-    order: 0,
   },
   {
     slug: "second-tevarin-war",
@@ -317,7 +306,6 @@ export const SEED_EVENTS: SeedEvent[] = [
       fr: `<p>Les Tevarins survivants, dépouillés de leur monde natal et dispersés en flottes de réfugiés, lancent une ultime campagne désespérée pour reconquérir Kaleeth. Sous le commandement du guerrier-poète Corath'Thal, la flotte Tevarin frappe avec une coordination extraordinaire et une férocité sacrificielle.</p>
 <p>L'UEE répond par une force écrasante. La bataille finale au-dessus de Kaleeth se termine lorsque Corath'Thal, plutôt que de se rendre, entraîne ses vaisseaux restants dans une plongée délibérée dans l'atmosphère de la planète.</p>`,
     },
-    order: 1,
   },
   {
     slug: "massacre-garron-ii",
@@ -335,7 +323,6 @@ export const SEED_EVENTS: SeedEvent[] = [
       fr: `<p>Garron II accueille une espèce extraterrestre pré-industrielle classifiée par les xénobiologistes de l'UEE comme "Catégorie Quatre : sensibilité minimale." Lorsqu'une opération de terraformation commence malgré des études en cours, les Messers l'autorisent en vertu de clauses de développement commercial.</p>
 <p>Les séquences divulguées, distribuées sous la désignation <em>Les Transmissions Garron</em>, déclenchent le premier underground politique anti-Messer significatif.</p>`,
     },
-    order: 2,
   },
   {
     slug: "synthworld-project",
@@ -353,7 +340,6 @@ export const SEED_EVENTS: SeedEvent[] = [
       fr: `<p>L'obsession de Messer VII pour son héritage produit le projet d'ingénierie le plus ambitieux — et catastrophiquement raté — de l'histoire de l'UEE : la construction artificielle d'une planète entière habitable. Le projet Synthworld vise à démontrer que la technologie humaine a transcendé l'univers naturel.</p>
 <p>La planète reste fondamentalement inachevée. Le Synthworld devient un monument à la mégalomanie Messer — un gouffre maintenu des décennies durant plus par inertie politique que par une véritable intention de le terminer.</p>`,
     },
-    order: 3,
   },
   {
     slug: "three-pillars",
@@ -371,7 +357,6 @@ export const SEED_EVENTS: SeedEvent[] = [
       fr: `<p>La philosophe Sujata Vatari, écrivant sous le pseudonyme Suj Vattic pour échapper aux censeurs Messer, commence à distribuer son texte interdit <em>Les Trois Piliers</em> à travers des réseaux souterrains sur trente systèmes. L'œuvre articule un cadre philosophique pour une gouvernance post-autoritaire bâtie sur trois fondements : <strong>responsabilité</strong>, <strong>transparence</strong> et <strong>représentation mesurée</strong>.</p>
 <p>En deux ans, des copies manuscrites existent sur chaque monde habité. Suj Vattic est finalement révélée être Vatari — elle vit pour voir ses trois piliers codifiés dans la loi de l'UEE.</p>`,
     },
-    order: 4,
   },
   {
     slug: "messer-overthrown",
@@ -389,7 +374,6 @@ export const SEED_EVENTS: SeedEvent[] = [
       fr: `<p>Un coup d'État militaire coordonné sous le nom de code <strong>Opération Archange</strong>, organisé par un réseau d'officiers de la Marine de haut rang, de personnel de sécurité du Sénat et de membres de la résistance civile qui ont passé des décennies à se préparer en secret, s'exécute simultanément dans sept systèmes.</p>
 <p>La dynastie Messer de 246 ans ne se termine pas par une bataille, mais par le silence. Un officier de service au bureau de sécurité du Sénat écrit dans son journal ce soir-là : <em>"Personne n'a pleuré. C'était la partie la plus étrange. Nous avions tous imaginé que nous allions pleurer."</em></p>`,
     },
-    order: 5,
   },
   // ── RESTORATION ─────────────────────────────────────────────────────────
   {
@@ -408,7 +392,6 @@ export const SEED_EVENTS: SeedEvent[] = [
       fr: `<p>Le Sénat, libéré du contrôle Messer pour la première fois en deux siècles et demi, nomme Erin Toi — une juriste largement respectée et ancienne présidente du comité de révision civile qui avait secrètement soutenu l'Opération Archange — comme Imperator transitoire.</p>
 <p>Le premier discours de Toi au Sénat est encore étudié dans les programmes de philosophie politique : <em>"Nous ne jetons pas la structure de l'Empire ; nous la remplissons de sens. Non pas le sens de l'ambition d'une famille, mais de l'espoir de chaque famille."</em></p>`,
     },
-    order: 0,
   },
   {
     slug: "restoration-acts",
@@ -426,7 +409,6 @@ export const SEED_EVENTS: SeedEvent[] = [
       fr: `<p>Huit ans de travail législatif culminent dans l'adoption des <strong>Actes de Restauration</strong> — un ensemble complet de réformes constitutionnelles qui répudie formellement la législation de l'ère Messer. Les dispositions clés comprennent : la révision obligatoire par le Sénat de toutes les actions exécutives de l'Imperator et la reconnaissance des Tevarins comme groupe culturel protégé.</p>
 <p>La date d'adoption — le 14 mars 2800 — est déclarée jour férié de l'UEE : <em>Jour de la Restauration</em>. Lors de la première célébration, les communautés Tevarins dans quatorze systèmes tiennent des veillées cérémonielles publiques.</p>`,
     },
-    order: 1,
   },
   {
     slug: "tevarin-cultural-reintegration",
@@ -444,7 +426,6 @@ export const SEED_EVENTS: SeedEvent[] = [
       fr: `<p>Cinquante ans après que les Actes de Restauration ont formellement reconnu les droits des Tevarins, le Sénat de l'UEE adopte les Accords de Réintégration — fournissant des concessions de territoire dans trois systèmes pour les colonies communautaires Tevarins et le financement gouvernemental pour la préservation de la langue et des traditions martiales Tevarins.</p>
 <p>Les accords sont imparfaits et contestés au sein des communautés Tevarins : certains voient l'engagement avec la gouvernance de l'UEE comme une collaboration ; d'autres le voient comme une survie.</p>`,
     },
-    order: 2,
   },
   {
     slug: "nul-system-abandoned",
@@ -462,7 +443,6 @@ export const SEED_EVENTS: SeedEvent[] = [
       fr: `<p>Suite à des décennies de développement économique raté et à la domination persistante du crime organisé, le Sénat vote pour retirer officiellement la présence administrative du Système Nul. Des générations de familles qui ont bâti leur vie dans Nul sont profondément divisées : certaines acceptent les subventions de relocalisation ; beaucoup restent, construisant une culture d'autosuffisance radicale.</p>
 <p><em>"Ils ont abandonné notre cause, alors nous avons appris à ne pas avoir besoin d'eux."</em> — Proverbe Nulien commun, origine inconnue.</p>`,
     },
-    order: 3,
   },
   // ── MODERN UEE ──────────────────────────────────────────────────────────
   {
@@ -481,7 +461,6 @@ export const SEED_EVENTS: SeedEvent[] = [
       fr: `<p>Sans avertissement, une guerre vanduul d'une échelle sans précédent — plus de neuf cents vaisseaux — traverse le Système Vega et commence une campagne systématique d'extermination civile. La planète Vega II, avec une population de 4,7 milliards, est bombardée pendant onze jours consécutifs.</p>
 <p>Le bilan final dépasse 450 millions de morts. C'est le plus grand événement de victimes unique de l'histoire humaine. Vega reste un système monument. Aucune habitation civile n'a été autorisée sur Vega II depuis l'attaque.</p>`,
     },
-    order: 0,
   },
   {
     slug: "project-rebirth",
@@ -499,7 +478,6 @@ export const SEED_EVENTS: SeedEvent[] = [
       fr: `<p>La commission historique indépendante créée par le Sénat publie <em>Projet Renaissance</em> — un rapport de 12 000 pages documentant les atrocités de l'ère Messer précédemment classifiées, supprimées ou niées. Le rapport détaille 42 événements distincts impliquant des pertes civiles massives délibérées et des programmes de torture systématiques.</p>
 <p>Le Sénat présente officiellement ses excuses aux communautés survivantes Tevarins et de Garron II — 230 ans trop tard.</p>`,
     },
-    order: 1,
   },
   {
     slug: "concord-of-ayr",
@@ -517,7 +495,6 @@ export const SEED_EVENTS: SeedEvent[] = [
       fr: `<p>Des siècles de guerre froide, d'escarmouches par procuration et de tensions frontalières entre l'UEE et l'Empire Xi'An atteignent un moment d'apaisement avec la signature de la <strong>Concorde d'Ayr</strong>. Aucun camp ne fait confiance à l'autre. Les deux reconnaissent l'alternative : une guerre armée qui dévasterait les deux civilisations.</p>
 <p>Un diplomate Xi'An, interrogé pour un commentaire, répond : <em>"Un bon traité ne nécessite aucune application. Un mauvais traité ne nécessite que de la patience."</em></p>`,
     },
-    order: 2,
   },
   {
     slug: "vanduul-expansion-2951",
@@ -535,7 +512,6 @@ export const SEED_EVENTS: SeedEvent[] = [
       fr: `<p>Les rapports de renseignement confirment que les groupes de guerre Vanduul opèrent désormais selon des schémas coordonnés suggérant une direction stratégique au niveau de la confédération, plutôt que le comportement de pillage opportuniste des siècles précédents.</p>
 <p>Le Sénat adopte la <strong>Loi d'Expansion Sécuritaire</strong>, la plus grande mobilisation militaire unique depuis la Deuxième Guerre Tevarin : 340 nouveaux vaisseaux de combat commandés, douze plateformes de défense frontalières approuvées.</p>`,
     },
-    order: 3,
   },
   {
     slug: "year-2954-status",
@@ -553,6 +529,5 @@ export const SEED_EVENTS: SeedEvent[] = [
       fr: `<p>L'Empire Uni de la Terre en 2954 est une civilisation en tension avec elle-même. Économiquement, il représente la période la plus prospère de l'histoire humaine. Politiquement, il reste fragile : la responsabilité démocratique dépend presque entièrement du caractère de celui qui détient la position d'Imperator.</p>
 <p>L'histoire n'est pas terminée. Ce que chaque citoyen fait de sa place dans ce moment — sa petite part de 879 ans d'histoire humaine dans les étoiles — lui appartient entièrement.</p>`,
     },
-    order: 4,
   },
 ];

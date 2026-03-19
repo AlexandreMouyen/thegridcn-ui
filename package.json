@@ -3,14 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "predev": "tsx scripts/generate-component-dates.ts",
     "dev": "next dev",
-    "prebuild": "tsx scripts/generate-component-dates.ts && pnpm run test",
-    "build": "pnpm registry:build && next build",
+    "prebuild": "pnpm run test",
+    "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "registry:update": "tsx scripts/update-registry.ts",
-    "registry:build": "shadcn build && tsx scripts/enhance-registry-files.ts && tsx scripts/build-registry-styles.ts",
     "test": "jest"
   },
   "dependencies": {
