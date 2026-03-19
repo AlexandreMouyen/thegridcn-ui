@@ -12,9 +12,9 @@ import {
   Select,
   Modal,
   ModalButton,
+  RichTextEditor,
 } from "@/components/thegridcn";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 import { fetcher, FetchedData } from "@/lib/fetcher";
@@ -837,21 +837,16 @@ export function EventsCrud({ initialEvents = [] }: EventsCrudProps) {
 
             {/* Content */}
             <div>
-              <FieldLabel>
-                Content{" "}
-                {formLocale === "en" ? "*" : `(${formLocale.toUpperCase()})`}
-              </FieldLabel>
-              <Textarea
+              <RichTextEditor
+                label={`Content${formLocale === "en" ? " *" : ` (${formLocale.toUpperCase()})`}`}
                 value={form[`content_${formLocale}`]}
-                onChange={(e) =>
-                  setField(`content_${formLocale}`, e.target.value)
-                }
+                onChange={(v) => setField(`content_${formLocale}`, v)}
                 placeholder={
                   formLocale === "en"
                     ? "Describe this event in English..."
-                    : "Décrivez cet événement en français..."
+                    : "D\xE9crivez cet \xE9v\xE9nement en fran\xE7ais..."
                 }
-                className="font-rajdhani text-sm min-h-40 resize-y"
+                minHeight="160px"
               />
             </div>
           </div>

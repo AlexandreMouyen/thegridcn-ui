@@ -156,6 +156,7 @@ export { MetricRow } from "./metric-row";
 
 // Form & Input (Extended)
 export { SearchInput } from "./search-input";
+export { RichTextEditor } from "./rich-text-editor";
 export { TagInput } from "./tag-input";
 export { NewsletterForm } from "./newsletter-form";
 export { DatePicker } from "./date-picker";

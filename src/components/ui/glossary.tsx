@@ -193,9 +193,9 @@ export function GlossaryTerm({
                 </div>
               )}
             </div>
-            <p className="text-xs leading-relaxed text-foreground/80">
-              <GlossaryContent text={resolvedDefinition ?? ""} />
-            </p>
+            <div className="text-xs leading-relaxed text-foreground/80 [&_strong]:font-semibold [&_em]:italic">
+              <RichContent html={resolvedDefinition ?? ""} />
+            </div>
           </div>
         )}
       </HoverCardContent>

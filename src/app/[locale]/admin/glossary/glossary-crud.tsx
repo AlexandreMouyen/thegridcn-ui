@@ -4,24 +4,16 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLocale } from "next-intl";
 import useSWR from "swr";
 import { toast } from "sonner";
-import {
-  Plus,
-  Pencil,
-  Trash2,
-  Loader2,
-  BookOpen,
-  Eye,
-  EyeOff,
-} from "lucide-react";
+import { Plus, Pencil, Trash2, Loader2, BookOpen } from "lucide-react";
 import {
   TextInput,
   SearchInput,
   Select,
   Modal,
   ModalButton,
+  RichTextEditor,
 } from "@/components/thegridcn";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { TagsCombobox } from "@/components/ui/tags-combobox";
 import { cn } from "@/lib/utils";
@@ -31,10 +23,7 @@ import {
   type IGlossaryTerm,
   type GlossaryTag,
 } from "@/types/glossary";
-import {
-  GlossaryContent,
-  invalidateGlossaryCache,
-} from "@/components/ui/glossary";
+import { invalidateGlossaryCache } from "@/components/ui/glossary";
 
 // ── Tag options & colors ──────────────────────────────────────────────────────
 
@@ -175,7 +164,6 @@ export function GlossaryCrud() {
   const [form, setForm] = useState<GlossaryFormData>(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
   const [formLocale, setFormLocale] = useState<LocaleCode>("en");
-  const [previewDef, setPreviewDef] = useState(false);
 
   const isCreate = editingSlug === null;
 
@@ -217,7 +205,6 @@ export function GlossaryCrud() {
     setEditingSlug(null);
     setForm(EMPTY_FORM);
     setFormLocale("en");
-    setPreviewDef(false);
     setFormOpen(true);
   }
 
@@ -232,7 +219,6 @@ export function GlossaryCrud() {
       setEditingSlug(term.slug);
       setForm(termToForm(term));
       setFormLocale("en");
-      setPreviewDef(false);
       setFormOpen(true);
     } catch (e: unknown) {
       toast.error(e instanceof Error ? e.message : "Failed to load term");
@@ -633,54 +619,16 @@ export function GlossaryCrud() {
             />
           </div>
 
-          {/* Definition with preview toggle */}
+          {/* Definition with rich editor + preview */}
           <div key={`def-${formLocale}`}>
-            <div className="flex items-center justify-between mb-2">
-              <FieldLabel>
-                Definition ({formLocale.toUpperCase()})
-                {formLocale === "en" ? " *" : ""}
-              </FieldLabel>
-              <button
-                onClick={() => setPreviewDef((v) => !v)}
-                className="flex items-center gap-1 font-mono text-[9px] uppercase tracking-widest text-foreground/40 hover:text-primary transition-colors"
-              >
-                {previewDef ? (
-                  <>
-                    <EyeOff className="h-3 w-3" /> Edit
-                  </>
-                ) : (
-                  <>
-                    <Eye className="h-3 w-3" /> Preview
-                  </>
-                )}
-              </button>
-            </div>
-
-            {previewDef ? (
-              <div className="rounded border border-border/40 bg-card/40 px-3 py-2 font-rajdhani text-sm text-foreground/80 min-h-[80px]">
-                {currentDefValue ? (
-                  <GlossaryContent text={currentDefValue} />
-                ) : (
-                  <span className="text-foreground/30 italic">
-                    No definition yet…
-                  </span>
-                )}
-              </div>
-            ) : (
-              <Textarea
-                value={currentDefValue}
-                onChange={(e) => setField(currentDefField, e.target.value)}
-                placeholder={`A star system in the Hades constellation… Use {glossary:slug|Text} to link other terms.`}
-                className="font-rajdhani text-sm min-h-[80px]"
-              />
-            )}
-            <p className="font-mono text-[9px] text-foreground/30 mt-1">
-              Supports{" "}
-              <code className="text-primary/60">
-                {"{glossary:slug|Display Text}"}
-              </code>{" "}
-              to link nested terms.
-            </p>
+            <RichTextEditor
+              label={`Definition (${formLocale.toUpperCase()})${formLocale === "en" ? " *" : ""}`}
+              value={currentDefValue}
+              onChange={(v) => setField(currentDefField, v)}
+              placeholder="A star system in the Hades constellation… Use the Glossary button or {glossary:slug|Text} to link other terms."
+              hint="Supports {glossary:slug|Display Text} to link nested terms. Bold and italic are also available."
+              minHeight="80px"
+            />
           </div>
         </div>
       </Modal>

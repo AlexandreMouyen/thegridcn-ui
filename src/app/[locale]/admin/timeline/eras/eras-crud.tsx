@@ -12,9 +12,9 @@ import {
   Select,
   Modal,
   ModalButton,
+  RichTextEditor,
 } from "@/components/thegridcn";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 import { fetcher, FetchedData } from "@/lib/fetcher";
@@ -721,21 +721,16 @@ export function ErasCrud({ initialEras = [] }: ErasCrudProps) {
 
             {/* Description */}
             <div>
-              <FieldLabel>
-                Description{" "}
-                {formLocale === "en" ? "*" : `(${formLocale.toUpperCase()})`}
-              </FieldLabel>
-              <Textarea
+              <RichTextEditor
+                label={`Description${formLocale === "en" ? " *" : ` (${formLocale.toUpperCase()})`}`}
                 value={form[`description_${formLocale}`]}
-                onChange={(e) =>
-                  setField(`description_${formLocale}`, e.target.value)
-                }
+                onChange={(v) => setField(`description_${formLocale}`, v)}
                 placeholder={
                   formLocale === "en"
                     ? "A brief description of this era in English..."
-                    : "Une brève description de cette ère en français..."
+                    : "Une br\xE8ve description de cette \xE8re en fran\xE7ais..."
                 }
-                className="font-rajdhani text-sm min-h-40 resize-y"
+                minHeight="160px"
               />
             </div>
           </div>
