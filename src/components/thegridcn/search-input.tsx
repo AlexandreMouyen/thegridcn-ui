@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useHotkey } from "@tanstack/react-hotkeys";
 import { cn } from "@/lib/utils";
 
 interface SearchInputProps extends Omit<
@@ -27,9 +28,12 @@ export const SearchInput = React.forwardRef<HTMLInputElement, SearchInputProps>(
     },
     ref,
   ) {
+    // STATES
     const [internalValue, setInternalValue] = React.useState("");
     const current = controlledValue ?? internalValue;
+    const innerRef = React.useRef<HTMLInputElement>(null);
 
+    // FUNCTIONS
     function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
       const v = e.target.value;
       if (controlledValue === undefined) setInternalValue(v);
@@ -48,10 +52,21 @@ export const SearchInput = React.forwardRef<HTMLInputElement, SearchInputProps>(
       onChange?.("");
     }
 
+    // HOOKS
+    useHotkey(
+      "Escape",
+      () => {
+        if (current) handleClear();
+      },
+      { target: innerRef, enabled: !disabled },
+    );
+
+    // RENDER
     return (
       <div
         data-slot="tron-search-input"
         className={cn("relative", disabled && "opacity-40", className)}
+        ref={innerRef}
       >
         {/* Search icon */}
         <span className="absolute left-3 top-1/2 z-10 -translate-y-1/2 text-foreground/25 pointer-events-none">
